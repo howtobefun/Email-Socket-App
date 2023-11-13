@@ -2,3 +2,4 @@ https://docs.google.com/document/d/15t13970FfD4riVmYLS8rTzwRZ0FqPNR2LMDEDxEYWWE/
 https://docs.google.com/document/d/16helJXC2pJ01m6Xj-hXg9SnHyLtg75wrGx1zqBc8ztg/edit?usp=sharing
 https://electrictoolbox.com/pop3-commands/
 https://mailtrap.io/blog/smtp-commands-and-responses/
+https://www.geeksforgeeks.org/smtp-commands/
