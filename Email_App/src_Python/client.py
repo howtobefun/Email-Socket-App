@@ -3,8 +3,8 @@ import socket
 msg = "\r\n Anh DuyTech"
 endmsg = "\r\n.\r\n"
 
-recipient = "\"baoduytdn@gmail.com\""
-sender = "\"duytdn2806@gmail.com\""
+recipient = "<baoduytdn@gmail.com>"
+sender = "<duytdn2806@gmail.com>"
 username = "baoduytdn@gmail.com"
 password = "password"
 
@@ -12,6 +12,7 @@ password = "password"
 mailserver = '127.0.0.1'
 SMTP_port = 2225
 POP3_port = 3335
+
 clientSocket = socket.socket()
 clientSocket.connect((mailserver, SMTP_port))
 recv = clientSocket.recv(1024).decode()
@@ -19,7 +20,7 @@ print(recv)
 if recv[:3] != '220':
 	print('220 reply not received from server.')
 
-heloCommand = 'HELO Alice\r\n'
+heloCommand = f'EHLO [{mailserver}]\r\n'
 clientSocket.send(heloCommand.encode())
 recv1 = clientSocket.recv(1024).decode()
 print(recv1)
@@ -43,9 +44,10 @@ if recv3[:3] != '250':
 dataCommand = "DATA\r\n"
 clientSocket.send(dataCommand.encode())
 recv4 = clientSocket.recv(1024).decode()
+print(recv4)
 if (recv4[:3] == '354'):
-    clientSocket.send((msg).encode())
-    clientSocket.send((endmsg).encode())
+	sendmsg = msg + endmsg
+	clientSocket.send((sendmsg).encode())
 
 quit_command = "QUIT\r\n"
 clientSocket.send(quit_command.encode())
