@@ -3,9 +3,9 @@ import socket
 msg = "\r\n Anh DuyTech"
 endmsg = "\r\n.\r\n"
 
-recipient = "<fuck@fuck.fuck>"
+recipient = "<duytdn2806@AnhDuyTech>"
 sender =  "<baoduytdn2806@gmail.com>"
-username = "fuck@fuck.fuck"
+username = "duytdn2806@AnhDuyTech"
 password = "password"
 
 # Mail server is host machine + used port when running jar file
