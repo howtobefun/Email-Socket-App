@@ -1,0 +1,63 @@
+import socket
+import base64
+def send_email(sender, receipt,name,content,serverSMTP,port,account,password):
+    host='127.0.0.1'
+    port=2225
+    server=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.connect((serverSMTP,port))
+    recv_data=server.recv(1024)
+    print(recv_data.decode())
+
+    server.sendall(b'abcdefexample.com\r')
+    recv_data = server.recv(1024)
+    print(recv_data.decode())
+
+    server.sendall(b'sign in\r')
+    recv_data = server.recv(1024)
+    print(recv_data.decode())
+
+    user=base64.b64encode(account.encode())+b'\r\n'
+    server.sendall(user)
+    recv_data = server.recv(1024)
+    print(recv_data.decode())
+
+    passW=base64.b64encode(password.encode())+b'\r\n'
+    server.sendall(passW)
+    recv_data = server.recv(1024)
+    print(recv_data.decode())
+
+    server.sendall(f'from:<{sender}>\r\n'.encode())
+    recv_data = server.recv(1024)
+    print(recv_data.decode())
+
+    server.sendall(f'to:<{receipt}>\r\n'.encode())
+    recv_data = server.recv(1024)
+    print(recv_data.decode())
+
+    server.sendall(b'DATA\r\n')
+    recv_data = server.recv(1024)
+    print(recv_data.decode())
+
+    server.sendall(f'Nguoi gui: {name}\r\n{content}\r\n'.encode())
+    recv_data = server.recv(1024)
+    print(recv_data.decode())
+
+    server.sendall(b'QUIT\r\n')
+    recv_data = server.recv(1024)
+    print(recv_data.decode())
+
+    server.close()
+
+
+
+send_email(
+    sender='meimei@email.com',
+    receipt='duywjbu@email.com',
+    name='TestSmtp',
+    content='Anh iu em nhieu lam',
+    serverSMTP='127.0.0.1',
+    port=2225,
+    account='meimei@email.com',
+    password='123456',
+) 
+
