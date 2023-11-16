@@ -3,9 +3,9 @@ import socket
 msg = "\r\n Anh DuyTech"
 endmsg = "\r\n.\r\n"
 
-recipient = "<baoduytdn@gmail.com>"
-sender = "<duytdn2806@gmail.com>"
-username = "baoduytdn@gmail.com"
+recipient = "<fuck@fuck.fuck>"
+sender =  "<baoduytdn2806@gmail.com>"
+username = "fuck@fuck.fuck"
 password = "password"
 
 # Mail server is host machine + used port when running jar file
@@ -25,7 +25,7 @@ clientSocket.send(heloCommand.encode())
 recv1 = clientSocket.recv(1024).decode()
 print(recv1)
 if recv1[:3] != '250':
-	print('250 reply not received from server.')
+    print('250 reply not received from server.')
 	
 mailFromCommand = f"MAIL FROM: {sender}\r\n"
 clientSocket.send(mailFromCommand.encode())
@@ -46,8 +46,9 @@ clientSocket.send(dataCommand.encode())
 recv4 = clientSocket.recv(1024).decode()
 print(recv4)
 if (recv4[:3] == '354'):
-	sendmsg = msg + endmsg
-	clientSocket.send((sendmsg).encode())
+    sendmsg = msg + endmsg
+    clientSocket.send((sendmsg).encode())
+    clientSocket.recv(1024)
 
 quit_command = "QUIT\r\n"
 clientSocket.send(quit_command.encode())
@@ -78,6 +79,3 @@ print(recv)
 # clientSocket.send(retrCommand.encode())
 # recv = clientSocket.recv(1024).decode()
 # print(recv)
-
-
-
