@@ -5,7 +5,7 @@ endmsg = "\r\n.\r\n"
 
 recipient = "<duytdn2806@gmail.com>"
 sender =  "<baoduytdn2806@gmail.com>"
-username = "duytdn2806@gmail.com"
+username = "baoduytdn2806@gmail.com"
 password = "password"
 
 # Mail server is host machine + used port when running jar file

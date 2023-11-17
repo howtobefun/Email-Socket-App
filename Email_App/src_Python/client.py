@@ -8,5 +8,12 @@ sender = "Anh DuyTech"
 recipient = "Duy"
 
 if __name__ == "__main__":
-    SMTPclient = Client_SMTP(mailserver, SMTPport)
+    username = sender
+    password = "password"
+
+    SMTPclient = Client_SMTP(mailserver, SMTPport, username)
     SMTPclient.sendEmail(recipient)
+    SMTPclient.endSession()
+
+    POP3client = Client_POP3(mailserver, POP3port, username, password)
+    POP3client.showNumberOfMails()
