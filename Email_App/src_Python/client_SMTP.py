@@ -6,7 +6,7 @@ class Client_SMTP:
         self.port = port
         self.username = username
 
-        self.clientSocket = socket.socket()
+        self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.clientSocket.connect((mailserver, port))
         recv = self.clientSocket.recv(1024).decode()
         print(recv)
