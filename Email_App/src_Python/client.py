@@ -15,5 +15,5 @@ if __name__ == "__main__":
     SMTPclient.sendEmail(recipient)
     SMTPclient.endSession()
 
-    POP3client = Client_POP3(mailserver, POP3port, username, password)
+    POP3client = Client_POP3(mailserver, POP3port, recipient, password)
     POP3client.showNumberOfMails()
