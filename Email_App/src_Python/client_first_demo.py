@@ -3,9 +3,9 @@ import socket
 msg = "\r\n Anh DuyTech"
 endmsg = "\r\n.\r\n"
 
-recipient = "<duytdn2806@gmail.com>"
-sender =  "<baoduytdn2806@gmail.com>"
-username = "baoduytdn2806@gmail.com"
+recipient = "DuyBao@DuyBao.DuyBao"
+sender =  "AnhDuyTech@DuyTech.DuyTech"
+username = "DuyBao@DuyBao.DuyBao"
 password = "password"
 
 # Mail server is host machine + used port when running jar file
@@ -23,12 +23,12 @@ clientSocket.send(heloCommand.encode())
 recv1 = clientSocket.recv(1024).decode()
 print(recv1)
 	
-mailFromCommand = f"MAIL FROM: {sender}\r\n"
+mailFromCommand = f"MAIL FROM: <{sender}>\r\n"
 clientSocket.send(mailFromCommand.encode())
 recv2 = clientSocket.recv(1024).decode()
 print(recv2)
 	
-rcptToCommand = f"RCPT TO: {recipient}\r\n"
+rcptToCommand = f"RCPT TO: <{recipient}>\r\n"
 clientSocket.send(rcptToCommand.encode())
 recv3 = clientSocket.recv(1024).decode()
 print(recv3)
@@ -52,7 +52,7 @@ clientSocket.connect((mailserver, POP3_port))
 recv = clientSocket.recv(1024).decode()
 print(recv)
 
-userCommand = f"USER {username}\r\n"
+userCommand = f"USER {sender}\r\n"
 clientSocket.send(userCommand.encode())
 recv = clientSocket.recv(1024).decode()
 print(recv)
