@@ -1,63 +1,48 @@
 import socket
-import base64
-def send_email(sender, receipt,name,content,serverSMTP,port,account,password):
-    host='127.0.0.1'
-    port=2225
+def send_email(sender, receipt, name, content, serverSMTP, port):
     server=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((serverSMTP,port))
     recv_data=server.recv(1024)
     print(recv_data.decode())
+    endmsg = "\r\n.\r\n"
 
-    server.sendall(b'abcdefexample.com\r')
+    reply=f'HELO [{serverSMTP}]\r\n'
+    server.send(reply.encode())
     recv_data = server.recv(1024)
     print(recv_data.decode())
 
-    server.sendall(b'sign in\r')
+    reply = f"MAIL FROM: <{sender}>\r\n"
+    server.send(reply.encode())
     recv_data = server.recv(1024)
     print(recv_data.decode())
 
-    user=base64.b64encode(account.encode())+b'\r\n'
-    server.sendall(user)
+    reply=f"RCPT TO: <{receipt}>\r\n"
+    server.send(reply.encode())
     recv_data = server.recv(1024)
     print(recv_data.decode())
 
-    passW=base64.b64encode(password.encode())+b'\r\n'
-    server.sendall(passW)
-    recv_data = server.recv(1024)
-    print(recv_data.decode())
+    reply="DATA\r\n"
+    server.send(reply.encode())
+    recv_data = server.recv(1024).decode()
+    print(recv_data)
 
-    server.sendall(f'from:<{sender}>\r\n'.encode())
-    recv_data = server.recv(1024)
-    print(recv_data.decode())
+    if (recv_data[:3] == '354'):
+        sendmsg = content + endmsg
+        server.send(sendmsg.encode())
+        server.recv(1024)
 
-    server.sendall(f'to:<{receipt}>\r\n'.encode())
-    recv_data = server.recv(1024)
-    print(recv_data.decode())
-
-    server.sendall(b'DATA\r\n')
-    recv_data = server.recv(1024)
-    print(recv_data.decode())
-
-    server.sendall(f'Nguoi gui: {name}\r\n{content}\r\n'.encode())
-    recv_data = server.recv(1024)
-    print(recv_data.decode())
-
-    server.sendall(b'QUIT\r\n')
-    recv_data = server.recv(1024)
-    print(recv_data.decode())
+    reply="QUIT\r\n"
+    server.send(reply.encode())
+    server.recv(1024)
 
     server.close()
 
 
-
-send_email(
-    sender='meimei@email.com',
-    receipt='duywjbu@email.com',
-    name='TestSmtp',
-    content='Anh iu em nhieu lam',
-    serverSMTP='127.0.0.1',
-    port=2225,
-    account='meimei@email.com',
-    password='123456',
-) 
-
+if __name__ == "__main__":
+    sender="MDV@uwu.com"
+    receipt="duywjbu@email.com"
+    name="TestSmtp"
+    content="Anh iu em nhieu lam"
+    serverSMTP="127.0.0.1"
+    port=2225
+    send_email(sender,receipt,name,content,serverSMTP,port)
