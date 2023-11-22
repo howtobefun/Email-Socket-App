@@ -1,4 +1,8 @@
 import socket
+import Mail
+
+defaultTitle = "Anh DuyTech"
+defaultContent = "Anh DuyTech"
 
 class Client_SMTP:
     def __init__(self, mailserver, port, username):
@@ -6,19 +10,71 @@ class Client_SMTP:
         self.port = port
         self.username = username
 
-        self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.clientSocket.connect((mailserver, port))
-        recv = self.clientSocket.recv(1024).decode()
-        print(recv)
-
+        self.clientSocket: None
+        
         self.endmsg = "\r\n.\r\n"
 
+    def connectWithServer(self):
+        self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.clientSocket.connect((self.mailserver, self.port))
+        recv = self.clientSocket.recv(1024).decode()
+        print(recv)
         self.__command_HELO()
 
-    def sendEmail(self, recipient):
-        self.__command_MAIL_FROM()
-        self.__command_RCPT_TO(recipient)
-        self.__command_DATA("Anh DuyTech")
+    def sendEmail(self):
+        mailTo = self.getMailTo()
+        cc = self.getCC()
+        bcc = self.getBCC()
+        
+        mail = Mail.Mail(
+            sender= self.username,
+            mailTo= mailTo,
+            cc= cc,
+            bcc= bcc,
+            title= defaultTitle,
+            content = defaultContent
+        )
+
+        for recipient in mail.mailTo + mail.cc:
+            self.connectWithServer()
+            self.__command_MAIL_FROM()
+            self.__command_RCPT_TO(recipient)
+            self.__command_DATA(mail.getMailContent(bcc=""))
+            self.endSession
+
+        for recipient in mail.bcc:
+            self.connectWithServer()
+            self.__command_MAIL_FROM()
+            self.__command_RCPT_TO(recipient)
+            self.__command_DATA(mail.getMailContent(bcc=recipient))
+            self.endSession()
+
+    def getMailTo(self):
+        mailTo = []
+        while True:
+            recipient = input("To (Press 0 to exit): ")
+            if recipient == "0":
+                break
+            mailTo.append(recipient)
+        return mailTo
+
+    def getCC(self):
+        cc = []
+        while True:
+            recipient = input("Add CC (Press 0 to exit): ")
+            if recipient == "0":
+                break
+            cc.append(recipient)
+        return cc
+
+    def getBCC(self):
+        bcc = []
+        while True:
+            recipient = input("Add BCC (Press 0 to exit): ")
+            if recipient == "0":
+                break
+            bcc.append(recipient)
+        return bcc
 
     def endSession(self):
         self.__command_QUIT()
