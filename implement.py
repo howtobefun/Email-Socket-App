@@ -26,8 +26,8 @@ def send_email(sender, receipt, name, content, serverSMTP, port):
 
     reply="DATA\r\n"
     server.send(reply.encode())
-    recv_data = server.recv(1024)
-    print(recv_data.decode())
+    recv_data = server.recv(1024).decode()
+    print(recv_data)
 
     if (recv_data[:3] == '354'):
         content=content+endmsg
