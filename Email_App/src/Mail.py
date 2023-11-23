@@ -1,43 +1,20 @@
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+COMMASPACE = ", "
 endmsg = "\r\n.\r\n"
 
 class Mail:
-    def __init__(self, sender: str, mailTo: list, cc: list, bcc: list, title: str, content: str):
-        self.mailFrom = sender
-        self.mailTo = mailTo
-        self.cc = cc
-        self.bcc = bcc
-        self.title = title
-        self.content = content
+    def __init__(self, sender: str, mailTo: list, cc: list, bcc: str, subject: str, content: str):
+        self.message = MIMEMultipart()
+        self.message["From"] = sender
+        self.message["To"] = COMMASPACE.join(mailTo)
+        self.message["Cc"] = COMMASPACE.join(cc)
+        self.message["Bcc"] = bcc
+        self.message["Subject"] = subject
+        self.message.attach(MIMEText(content))
 
-    def getMailTo(self):
-        return self.mailTo
-    def getCC(self):
-        return self.cc
-    def getBCC(self):
-        return self.bcc
-    def getTitle(self):
-        return self.title
-    def getContent(self):
-        return self.content
-
-    def getMailContent(self, bcc: str):
-        content = ""
-        content += f"From: {self.mailFrom}\r\n"
-        
-        content += "To:"
-        for recipient in self.mailTo:
-            content += f" {recipient}"
-        content += "\r\n"
-
-        content += "CC:"
-        for recipient in self.cc:
-            content += f" {recipient}"
-        content += "\r\n"
-
-        content += f"BCC: {bcc}\r\n"
-
-        content += f"Title: {self.title}\r\n"
-
-        content += f"Content: {self.content}"
-
-        return content
+    def getMailContent(self):
+        return self.message.as_string()
+    

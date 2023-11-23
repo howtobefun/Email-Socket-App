@@ -1,7 +1,7 @@
 import socket
 import Mail
 
-defaultTitle = "Anh DuyTech"
+defaultSubject = "Anh DuyTech"
 defaultContent = "Anh DuyTech"
 
 class Client_SMTP:
@@ -25,29 +25,27 @@ class Client_SMTP:
         mailTo = self.getMailTo()
         cc = self.getCC()
         bcc = self.getBCC()
-        
+
+        for recipient in mailTo + cc:
+            self.sendOneMail(recipient, mailTo, cc, "", defaultSubject, defaultContent)
+
+        for recipient in bcc:
+            self.sendOneMail(recipient, mailTo, cc, recipient, defaultSubject, defaultContent)
+
+    def sendOneMail(self, recipient: str, mailTo: list, cc: list, bcc: str, subject: str, content: str):        
         mail = Mail.Mail(
-            sender= self.username,
-            mailTo= mailTo,
-            cc= cc,
-            bcc= bcc,
-            title= defaultTitle,
-            content = defaultContent
-        )
-
-        for recipient in mail.mailTo + mail.cc:
-            self.connectWithServer()
-            self.__command_MAIL_FROM()
-            self.__command_RCPT_TO(recipient)
-            self.__command_DATA(mail.getMailContent(bcc=""))
-            self.endSession
-
-        for recipient in mail.bcc:
-            self.connectWithServer()
-            self.__command_MAIL_FROM()
-            self.__command_RCPT_TO(recipient)
-            self.__command_DATA(mail.getMailContent(bcc=recipient))
-            self.endSession()
+                sender= self.username,
+                mailTo= mailTo,
+                cc= cc,
+                bcc= bcc,
+                subject= subject,
+                content = content
+            )
+        self.connectWithServer()
+        self.__command_MAIL_FROM()
+        self.__command_RCPT_TO(recipient)
+        self.__command_DATA(mail.getMailContent())
+        self.endSession()
 
     def getMailTo(self):
         mailTo = []
