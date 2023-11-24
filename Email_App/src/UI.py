@@ -9,18 +9,18 @@ def main(page: ft.Page):
     page.window_resizable=False
 
     to = ft.TextField(label="To", width=500)
-    cc =ft.TextField(
+    cc = ft.TextField(
             label="Cc",
             multiline=True,
             min_lines=0,
-           # height=60, 
+            #height=60, 
             width=500
         )
-    bcc =ft.TextField(
+    bcc = ft.TextField(
             label="Bcc",
             multiline=True,
             min_lines=0,
-       #     height=60, 
+            #height=60, 
             width=500
         )
     sendAddress=ft.Column([to,cc,bcc])
@@ -31,15 +31,22 @@ def main(page: ft.Page):
         height=60
     )
     content = ft.Container(
-        ft.TextField(label="Content", multiline=True,min_lines=0,height=300, border= "none"),
-        height=300,
-        padding=5,
-        border=ft.border.all()
+        content= ft.TextField(label="Content", multiline=True,min_lines=0,height=300, border= "none"),
+        height= 300,
+        padding= 5,
+        border= ft.border.all()
     )
 
     def send(e):#e để nhận tín hiệu từ nút
         if(to.value):
             page.add(ft.Row([ft.Text(value="Sending successfully to "+ to.value,size=10)],alignment=ft.MainAxisAlignment.CENTER))
+            SMTPclient.sendEmail(
+                mailTo_str= to.value,
+                cc_str= cc.value,
+                bcc_str= bcc.value,
+                subject= subject.value,
+                content= content.content.value
+            )
 
     
     sendButton=ft.ElevatedButton(text="Send",on_click=send)

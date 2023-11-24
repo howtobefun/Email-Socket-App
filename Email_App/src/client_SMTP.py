@@ -21,16 +21,16 @@ class Client_SMTP:
         print(recv)
         self.__command_HELO()
 
-    def sendEmail(self):
-        mailTo = self.getMailTo()
-        cc = self.getCC()
-        bcc = self.getBCC()
+    def sendEmail(self, mailTo_str: str, cc_str: str, bcc_str: str, subject: str, content: str):
+        mailTo = self.getMailTo(mailTo_str)
+        cc = self.getCC(cc_str)
+        bcc = self.getBCC(bcc_str)
 
         for recipient in mailTo + cc:
-            self.sendOneMail(recipient, mailTo, cc, "", defaultSubject, defaultContent)
+            self.sendOneMail(recipient, mailTo, cc, "", subject, content)
 
         for recipient in bcc:
-            self.sendOneMail(recipient, mailTo, cc, recipient, defaultSubject, defaultContent)
+            self.sendOneMail(recipient, mailTo, cc, recipient, subject, content)
 
     def sendOneMail(self, recipient: str, mailTo: list, cc: list, bcc: str, subject: str, content: str):        
         mail = Mail.Mail(
@@ -47,31 +47,16 @@ class Client_SMTP:
         self.__command_DATA(mail.getMailContent())
         self.endSession()
 
-    def getMailTo(self):
-        mailTo = []
-        while True:
-            recipient = input("To (Press 0 to exit): ")
-            if recipient == "0":
-                break
-            mailTo.append(recipient)
+    def getMailTo(self, mailTo: str):
+        mailTo = mailTo.split(Mail.COMMASPACE)
         return mailTo
 
-    def getCC(self):
-        cc = []
-        while True:
-            recipient = input("Add CC (Press 0 to exit): ")
-            if recipient == "0":
-                break
-            cc.append(recipient)
+    def getCC(self, cc: str):
+        cc = cc.split(Mail.COMMASPACE)
         return cc
 
-    def getBCC(self):
-        bcc = []
-        while True:
-            recipient = input("Add BCC (Press 0 to exit): ")
-            if recipient == "0":
-                break
-            bcc.append(recipient)
+    def getBCC(self, bcc: str):
+        bcc = bcc.split(Mail.COMMASPACE)
         return bcc
 
     def endSession(self):
