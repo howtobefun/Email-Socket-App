@@ -5,14 +5,15 @@ mailserver = "127.0.0.1"
 SMTPport = 2225
 POP3port = 3335
 sender = "AnhDuyTech@DuyTech.DuyTech"
-recipient = "Duy@Duy.Duy"
+recipient = "duy"
 
 if __name__ == "__main__":
-    username = sender
+    username = recipient
     password = "password"
 
-    SMTPclient = Client_SMTP(mailserver, SMTPport, username)
-    SMTPclient.sendEmail()
+    # SMTPclient = Client_SMTP(mailserver, SMTPport, username)
+    # SMTPclient.sendEmail("duy","","","duytech","")
 
-    # POP3client = Client_POP3(mailserver, POP3port, recipient, password)
-    # POP3client.showNumberOfMails()
+    POP3client = Client_POP3(mailserver, POP3port, recipient, password)
+    POP3client.retrieveFirstMail()
+    POP3client.retrieveAttacments()
