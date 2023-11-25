@@ -3,6 +3,7 @@ import Mail
 
 defaultSubject = "Anh DuyTech"
 defaultContent = "Anh DuyTech"
+defaultFilePath = "OK! Ikuyo.mp3"
 
 class Client_SMTP:
     def __init__(self, mailserver, port, username):
@@ -27,19 +28,20 @@ class Client_SMTP:
         bcc = self.getBCC(bcc_str)
 
         for recipient in mailTo + cc:
-            self.sendOneMail(recipient, mailTo, cc, "", subject, content)
+            self.sendOneMail(recipient, mailTo, cc, "", subject, content, defaultFilePath)
 
         for recipient in bcc:
-            self.sendOneMail(recipient, mailTo, cc, recipient, subject, content)
+            self.sendOneMail(recipient, mailTo, cc, recipient, subject, content, defaultFilePath)
 
-    def sendOneMail(self, recipient: str, mailTo: list, cc: list, bcc: str, subject: str, content: str):        
+    def sendOneMail(self, recipient: str, mailTo: list, cc: list, bcc: str, subject: str, content: str, filePath: str):        
         mail = Mail.Mail(
                 sender= self.username,
                 mailTo= mailTo,
                 cc= cc,
                 bcc= bcc,
                 subject= subject,
-                content = content
+                content = content,
+                filePath= filePath
             )
         self.connectWithServer()
         self.__command_MAIL_FROM()
@@ -47,17 +49,23 @@ class Client_SMTP:
         self.__command_DATA(mail.getMailContent())
         self.endSession()
 
-    def getMailTo(self, mailTo: str):
-        mailTo = mailTo.split(Mail.COMMASPACE)
-        return mailTo
+    def getMailTo(self, mailTo_str: str):
+        if mailTo_str != "":
+            mailTo = mailTo_str.split(Mail.COMMASPACE)
+            return mailTo
+        return []
+    
+    def getCC(self, cc_str: str):
+        if cc_str != "":
+            cc = cc_str.split(Mail.COMMASPACE)
+            return cc
+        return []
 
-    def getCC(self, cc: str):
-        cc = cc.split(Mail.COMMASPACE)
-        return cc
-
-    def getBCC(self, bcc: str):
-        bcc = bcc.split(Mail.COMMASPACE)
-        return bcc
+    def getBCC(self, bcc_str: str):
+        if bcc_str != "":
+            bcc = bcc_str.split(Mail.COMMASPACE)
+            return bcc
+        return []
 
     def endSession(self):
         self.__command_QUIT()

@@ -1,12 +1,20 @@
 import flet as ft
 from client import *
 
+def initUser():
+    username = sender
+    password = "password"
+    SMTPclient = Client_SMTP(mailserver, SMTPport, username)
+    return SMTPclient
+
 def main(page: ft.Page):
     page.title = "Email Client"
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.window_width=800
     page.window_height=700
     page.window_resizable=False
+
+    SMTPclient = initUser()
 
     to = ft.TextField(label="To", width=500)
     cc = ft.TextField(
@@ -64,8 +72,4 @@ def main(page: ft.Page):
      )
     
 if __name__ == "__main__":
-    username = sender
-    password = "password"
-
-    SMTPclient = Client_SMTP(mailserver, SMTPport, username)
     ft.app(target=main)
