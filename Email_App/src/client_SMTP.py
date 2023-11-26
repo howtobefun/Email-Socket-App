@@ -3,10 +3,10 @@ import Mail
 
 defaultSubject = "Anh DuyTech"
 defaultContent = "Anh DuyTech"
-defaultFilePath = "OK! Ikuyo.mp3"
+defaultFilePath = ""
 
-class Client_SMTP:
-    def __init__(self, mailserver, port, username):
+class Client_SMTP():
+    def __init__(self, mailserver, port, username, password, email):
         self.mailserver = mailserver
         self.port = port
         self.username = username

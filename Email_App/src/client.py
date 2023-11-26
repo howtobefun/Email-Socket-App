@@ -3,7 +3,7 @@ from client_SMTP import *
 import json
 from types import SimpleNamespace
 
-def initUser():
+def initSMTPClient():
     configDataObject = initConfigData()
     username = configDataObject.General.username
     password = configDataObject.General.password
@@ -11,7 +11,7 @@ def initUser():
     SMTPport = configDataObject.Mailserver.SMTPport
     POP3port = configDataObject.Mailserver.POP3port
 
-    SMTPclient = Client_SMTP(mailserver, SMTPport, username)
+    SMTPclient = Client_SMTP(mailserver, SMTPport, username, password, username)
     return SMTPclient
 
 def initConfigData():

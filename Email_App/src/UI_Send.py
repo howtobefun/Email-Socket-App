@@ -1,15 +1,8 @@
 import flet as ft
-from client import *
-
-def initUser():
-    username = sender
-    password = "password"
-    SMTPclient = Client_SMTP(mailserver, SMTPport, username)
-    return SMTPclient
+from UI_User import *
 
 def SendPage(page: ft.Page):
- 
-    SMTPclient = initUser()
+    user = User()
 
     to = ft.TextField(label="To", width=500)
     cc = ft.TextField(label="Cc", multiline=True, width=500)
@@ -21,14 +14,14 @@ def SendPage(page: ft.Page):
         if(to.value):
             page.add(ft.Row([ft.Text(value="Sending successfully to "+ to.value,size=10)],
                             alignment=ft.MainAxisAlignment.CENTER))
-            
-            SMTPclient.sendEmail(
+            user.SMTPclient.sendEmail(
                 mailTo_str= to.value,
                 cc_str= cc.value,
                 bcc_str= bcc.value,
                 subject= subject.value,
                 content= content.value
             )
+            
 
     sendButton=ft.ElevatedButton(text="Send",on_click=send)
    

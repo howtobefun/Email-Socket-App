@@ -1,5 +1,24 @@
 import flet as ft
-from UI_Home import*
+from UI_Home import *
+
+def initUser(username: str, email: str, password: str):
+    configData = initConfigData()
+    SMTPclient = Client_SMTP(
+        mailserver= configData.Mailserver.ServerIP,
+        port = configData.Mailserver.SMTPport,
+        username= username,
+        password= password,
+        email= email
+    )
+    POP3client = Client_POP3(
+        mailserver= configData.Mailserver.ServerIP,
+        port = configData.Mailserver.POP3port,
+        username= username,
+        password= password
+    )
+
+    user = User(SMTPclient= SMTPclient, POP3client= POP3client)
+    return user
 
 def LoginPage(page:ft.page):
     page.title = "Email Client"
@@ -14,6 +33,7 @@ def LoginPage(page:ft.page):
     
     def login(e):#e để nhận tín hiệu từ nút
         if all([userName.value,userEmail.value,userPassword.value]):
+            user = initUser(userName.value, userEmail.value, userPassword.value)
             page.controls.pop()
             page.clean()
             HomePage(page)
@@ -32,8 +52,4 @@ def LoginPage(page:ft.page):
 
 
 if __name__ == "__main__":
-    username = sender
-    password = "password"
-
-    SMTPclient = Client_SMTP(mailserver, SMTPport, username)
     ft.app(target=LoginPage)

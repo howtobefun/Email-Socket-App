@@ -1,9 +1,10 @@
 import flet as ft
+from UI_User import *
+from UI_Send import *
 from client import *
 
 def MailClassify(name):
     return ft.TextField(value="dang chon "+name)
-
 
 def HomePage(page: ft.Page):
     def dropdown_changed(e):
@@ -25,6 +26,12 @@ def HomePage(page: ft.Page):
         value="Mail received",
         autofocus=True
     )
+
+    def ComposeNewMail(e):#e để nhận tín hiệu từ nút
+        page.controls.pop()
+        page.clean()
+        SendPage(page)
+
     curMail=MailClassify(mailClass.value)
     
     sentMail=ft.TextButton(
@@ -37,7 +44,15 @@ def HomePage(page: ft.Page):
         style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
     )
 
-    page.add(mailClass,curMail,sentMail,trashCan)
+    composeMail=ft.TextButton(
+        text="Compose Mail",
+        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
+        on_click= ComposeNewMail
+    )
+
+    
+
+    page.add(mailClass,curMail,sentMail,trashCan, composeMail)
    
    
 
