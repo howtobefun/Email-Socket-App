@@ -1,0 +1,12 @@
+{
+    "General": {
+        "username": "duy",
+        "password": "password"
+    },
+
+    "Mailserver": {
+        "ServerIP": "127.0.0.1",
+        "SMTPport": 2225,
+        "POP3port": 3335 
+    }
+}

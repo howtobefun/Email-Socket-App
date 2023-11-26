@@ -103,3 +103,6 @@ class Client_SMTP:
         command = "QUIT\r\n"
         self.clientSocket.send(command.encode())
         self.clientSocket.recv(1024)
+
+if __name__ == "__main__":
+    pass

@@ -28,9 +28,9 @@ class Client_POP3:
     def retrieveFirstMail(self):
         self.recvData = self.__command_RETR()
         recv_message = self.recvData[(self.recvData.find("\r\n".encode()) + 2):]
-        email_message = message_from_bytes(recv_message)
+        self.email_message = message_from_bytes(recv_message)
     
-    def retrieveAttacments(self):
+    def retrieveAttachments(self):
         if self.email_message.is_multipart():
             for part in self.email_message.walk():
                 if part.get_content_type() == 'text/plain':
@@ -72,3 +72,6 @@ class Client_POP3:
         QUITcommand = "QUIT \r\n"
         self.clientSocket.send(QUITcommand.encode())
         self.clientSocket.recv(1024)
+
+if __name__ == "__main__":
+    pass
