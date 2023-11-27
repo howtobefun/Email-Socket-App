@@ -1,6 +1,5 @@
 import socket
 from email import message_from_bytes
-import os
 
 savePath = "../attachments"
 

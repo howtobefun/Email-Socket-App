@@ -10,6 +10,7 @@ class Client_SMTP():
         self.mailserver = mailserver
         self.port = port
         self.username = username
+        self.email = email
 
         self.clientSocket: None
         
@@ -35,7 +36,7 @@ class Client_SMTP():
 
     def sendOneMail(self, recipient: str, mailTo: list, cc: list, bcc: str, subject: str, content: str, filePath: str):        
         mail = Mail.Mail(
-                sender= self.username,
+                sender= self.email,
                 mailTo= mailTo,
                 cc= cc,
                 bcc= bcc,

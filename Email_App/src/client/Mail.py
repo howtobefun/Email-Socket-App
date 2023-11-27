@@ -1,8 +1,6 @@
-from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
-import mimetypes
 import os
 
 COMMASPACE = ", "

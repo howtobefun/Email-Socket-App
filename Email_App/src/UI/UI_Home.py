@@ -1,7 +1,6 @@
 import flet as ft
 from UI_User import *
 from UI_Send import *
-from client import *
 
 def MailClassify(name):
     return ft.TextField(value="dang chon "+name)
