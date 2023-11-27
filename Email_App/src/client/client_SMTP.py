@@ -23,16 +23,16 @@ class Client_SMTP():
         print(recv)
         self.__command_HELO()
 
-    def sendEmail(self, mailTo_str: str, cc_str: str, bcc_str: str, subject: str, content: str):
+    def sendEmail(self, mailTo_str: str, cc_str: str, bcc_str: str, subject: str, content: str, attachments: str):
         mailTo = self.getMailTo(mailTo_str)
         cc = self.getCC(cc_str)
         bcc = self.getBCC(bcc_str)
 
         for recipient in mailTo + cc:
-            self.sendOneMail(recipient, mailTo, cc, "", subject, content, defaultFilePath)
+            self.sendOneMail(recipient, mailTo, cc, "", subject, content, attachments)
 
         for recipient in bcc:
-            self.sendOneMail(recipient, mailTo, cc, recipient, subject, content, defaultFilePath)
+            self.sendOneMail(recipient, mailTo, cc, recipient, subject, content, attachments)
 
     def sendOneMail(self, recipient: str, mailTo: list, cc: list, bcc: str, subject: str, content: str, filePath: str):        
         mail = Mail.Mail(
