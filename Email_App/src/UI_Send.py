@@ -29,7 +29,7 @@ def SendPage(page: ft.Page):
     fileName=ft.Text(value=fname)
     def showPickFile(e: ft.FilePickerResultEvent):
         for x in e.files:
-            global fname
+            nonlocal fname
             fname=fname+x.name
             fileName.value=fname
             page.update()
