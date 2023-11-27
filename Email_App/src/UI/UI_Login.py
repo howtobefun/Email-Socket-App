@@ -1,7 +1,9 @@
 import flet as ft
+import os
 from UI_Home import *
 
 def initUser(username: str, email: str, password: str):
+    print(os.path.curdir)
     configData = initConfigData()
     SMTPclient = Client_SMTP(
         mailserver= configData.Mailserver.ServerIP,
@@ -52,4 +54,6 @@ def LoginPage(page:ft.page):
 
 
 if __name__ == "__main__":
+    UI_PATH = os.path.dirname(__file__)
+    os.chdir(UI_PATH + '/../../')
     ft.app(target=LoginPage)

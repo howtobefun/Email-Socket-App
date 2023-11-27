@@ -1,7 +1,7 @@
 import socket
 from email import message_from_bytes
 
-savePath = "../attachments"
+savePath = "attachments/"
 
 class Client_POP3:
     def __init__(self, mailserver, port, username, password):
@@ -35,7 +35,7 @@ class Client_POP3:
                 if part.get_content_type() == 'text/plain':
                     continue
                 if part.get_content_type() == 'application/octet-stream':
-                    completePath = "../attachments/" + part.get_filename()
+                    completePath = savePath + part.get_filename()
                     with open(completePath, 'wb') as fp:
                         fp.write(part.get_payload(decode=True))
 
