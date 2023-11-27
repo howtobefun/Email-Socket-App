@@ -1,8 +1,22 @@
 import flet as ft
 from UI_User import *
 
+class FilePickedBar(ft.UserControl):
+    pass
+
+class FilePicked(ft.UserControl):
+    def __init__(self, fileName):
+        super().__init__()
+        self.fileName = fileName
+    
+    def build(self):
+        return ft.Row([
+            
+        ])
+
+
 def SendPage(page: ft.Page):
-    user = User()
+    #user = User()
 
     to = ft.TextField(label="To",height=40, width=500)
     cc = ft.TextField(label="Cc", height=40,width=500)
@@ -14,21 +28,27 @@ def SendPage(page: ft.Page):
         if(to.value):
             page.add(ft.Row([ft.Text(value="Sending successfully to "+ to.value,size=10)],
                             alignment=ft.MainAxisAlignment.CENTER))
-            user.SMTPclient.sendEmail(
-                mailTo_str= to.value,
-                cc_str= cc.value,
-                bcc_str= bcc.value,
-                subject= subject.value,
-                content= content.value
-            )
+            # user.SMTPclient.sendEmail(
+            #     mailTo_str= to.value,
+            #     cc_str= cc.value,
+            #     bcc_str= bcc.value,
+            #     subject= subject.value,
+            #     content= content.value
+            # )
             
 
     sendButton=ft.ElevatedButton(text="Send",on_click=send)
-
-    fileName=ft.Text("")
+    
+    fileName=ft.Container(
+        ft.Row([
+            ft.TextField(value="hiiii",width=50),
+            ft.Text("hello"), 
+            ft.Icon(name=ft.icons.FAVORITE)
+            ])
+    )
     def showPickFile(e: ft.FilePickerResultEvent):
         for x in e.files:
-            fileName.value=fileName.value+" \""+x.name+"\""
+            fileName.content.value=fileName.content.value+" \""+x.name+"\""
             page.update()
 
     file_picker = ft.FilePicker(on_result=showPickFile)
