@@ -10,6 +10,6 @@ class Singleton(type):
         return cls._instances[cls]
 
 class User(metaclass=Singleton):
-    def __init__(self, SMTPclient: Client_SMTP, POP3client: Client_POP3):
+    def __init__(self, SMTPclient, POP3client):
         self.SMTPclient = SMTPclient
         self.POP3client = POP3client
