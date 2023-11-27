@@ -19,16 +19,20 @@ def SendPage(page: ft.Page):
                 cc_str= cc.value,
                 bcc_str= bcc.value,
                 subject= subject.value,
-                content= content.value
+                content= content.value,
+                attachments= filePath.value
             )
             
 
     sendButton=ft.ElevatedButton(text="Send",on_click=send)
 
     fileName=ft.Text("")
+    filePath = ft.Text("")
     def showPickFile(e: ft.FilePickerResultEvent):
         for x in e.files:
-            fileName.value=fileName.value+" \""+x.name+"\""
+            print(x)
+            fileName.value=fileName.value+x.name
+            filePath.value = filePath.value+x.path
             page.update()
 
     file_picker = ft.FilePicker(on_result=showPickFile)
