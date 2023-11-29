@@ -20,7 +20,6 @@ class Client_SMTP():
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.clientSocket.connect((self.mailserver, self.port))
         recv = self.clientSocket.recv(1024).decode()
-        print(recv)
         self.__command_HELO()
 
     def sendEmail(self, mailTo_str: str, cc_str: str, bcc_str: str, subject: str, content: str, attachments: str):
@@ -34,7 +33,7 @@ class Client_SMTP():
         for recipient in bcc:
             self.sendOneMail(recipient, mailTo, cc, recipient, subject, content, attachments)
 
-    def sendOneMail(self, recipient: str, mailTo: list, cc: list, bcc: str, subject: str, content: str, filePath: str):        
+    def sendOneMail(self, recipient: str, mailTo: list, cc: list, bcc: str, subject: str, content: str, filePaths: str):        
         mail = Mail.Mail(
                 sender= self.email,
                 mailTo= mailTo,
@@ -42,7 +41,7 @@ class Client_SMTP():
                 bcc= bcc,
                 subject= subject,
                 content = content,
-                filePath= filePath
+                filePaths= filePaths
             )
         self.connectWithServer()
         self.__command_MAIL_FROM()
@@ -76,25 +75,21 @@ class Client_SMTP():
         command = f'EHLO [{self.mailserver}]\r\n'
         self.clientSocket.send(command.encode())
         recv = self.clientSocket.recv(1024).decode()
-        print(recv)
 
     def __command_MAIL_FROM(self):
         command = f"MAIL FROM: <{self.username}>\r\n"
         self.clientSocket.send(command.encode())
         recv = self.clientSocket.recv(1024).decode()
-        print(recv)
 	
     def __command_RCPT_TO(self, recipient):
         command = f"RCPT TO: <{recipient}>\r\n"
         self.clientSocket.send(command.encode())
         recv = self.clientSocket.recv(1024).decode()
-        print(recv)
 	
     def __command_DATA(self, msg):
         command = "DATA\r\n"
         self.clientSocket.send(command.encode())
         recv = self.clientSocket.recv(1024).decode()
-        print(recv)
         if (recv[:3] == '354'):
             sendmsg = msg + self.endmsg
             self.clientSocket.send((sendmsg).encode())

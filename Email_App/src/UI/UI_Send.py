@@ -30,13 +30,17 @@ def SendPage(page: ft.Page):
     filePath = ft.Text("")
     def showPickFile(e: ft.FilePickerResultEvent):
         for x in e.files:
-            print(x)
-            fileName.value=fileName.value+x.name
-            filePath.value = filePath.value+x.path
+            fileName.value=fileName.value + x.name + " "
+            filePath.value = filePath.value + x.path + ", "
             page.update()
 
     file_picker = ft.FilePicker(on_result=showPickFile)
     page.overlay.append(file_picker)
+
+    scrollableFileRow = ft.Row([fileName], 
+                               scroll=True,
+                               height=50,
+                            )
     
     # def doSomethingWithPickFile():
     #     if file_picker.result != None and file_picker.result.files != None:
@@ -50,7 +54,7 @@ def SendPage(page: ft.Page):
                 subject,
                 ft.ElevatedButton("Choose files...",
                     on_click=lambda _: file_picker.pick_files(allow_multiple=True)),
-                fileName,
+                scrollableFileRow,
                 content
             ],
             alignment=ft.MainAxisAlignment.START

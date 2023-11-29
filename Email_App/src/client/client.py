@@ -40,5 +40,5 @@ if __name__ == "__main__":
     username = "123"
     POP3client = Client_POP3(mailserver, POP3port, username, password)
     POP3client.showNumberOfMails()
-    POP3client.retrieveFirstMail()
-    POP3client.retrieveAttachments()
+    POP3client.showListMails()
+    POP3client.retrieveAllMails()

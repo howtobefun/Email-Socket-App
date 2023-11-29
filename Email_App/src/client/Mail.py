@@ -7,7 +7,7 @@ COMMASPACE = ", "
 endmsg = "\r\n.\r\n"
 
 class Mail:
-    def __init__(self, sender: str, mailTo: list, cc: list, bcc: str, subject: str, content: str, filePath: str):
+    def __init__(self, sender: str, mailTo: list, cc: list, bcc: str, subject: str, content: str, filePaths: str):
         self.message = MIMEMultipart()
         self.message["From"] = sender
         self.message["To"] = COMMASPACE.join(mailTo)
@@ -16,17 +16,25 @@ class Mail:
         self.message["Subject"] = subject
         self.message.attach(MIMEText(content))  
 
-        if (filePath != ""):
-            attachment = self.getFileFromPath(path= filePath)
-            if (attachment != None):
-                self.message.attach(attachment)
+        if (filePaths != ""):
+            attachments = self.getFileFromPath(paths= filePaths)
+            if (attachments != []):
+                for attachment in attachments:
+                    self.message.attach(attachment)
 
-    def getFileFromPath(self, path: str):
-        with open(path, "rb") as file:
-            basename = os.path.basename(path)
-            attachment = MIMEApplication(file.read(), Name= basename)
-            attachment['Content-Disposition'] = f'attachment; filename= "{basename}"'
-            return attachment
+    def getFileFromPath(self, paths: str):
+        fileList = paths.split(COMMASPACE)
+        attachments = []
+        for path in fileList: 
+            if (path == ""):
+                continue
+            with open(path, "rb") as file:
+                basename = os.path.basename(path)
+                attachment = MIMEApplication(file.read(), Name= basename)
+                attachment['Content-Disposition'] = f'attachment; filename= "{basename}"'
+                attachments.append(attachment)
+        
+        return attachments
 
     def getMailContent(self):
         return self.message.as_string()
