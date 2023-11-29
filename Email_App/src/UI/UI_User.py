@@ -1,7 +1,7 @@
 from Include import *
-from client import Client_SMTP
-from client import Client_POP3
-from client import *
+from client_SMTP import *
+from client_POP3 import *
+from test_client import *
 
 class Singleton(type):
     _instances = {}

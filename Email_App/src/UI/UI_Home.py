@@ -1,18 +1,18 @@
 import flet as ft
 from UI_User import *
 from UI_Send import *
-from client import *
 
 def MailClassify(name):
     return ft.TextField(value="dang chon "+name)
 
 def HomePage(page: ft.Page):
+    user = User()
+
     def dropdown_changed(e):
         nextMail=MailClassify(mailClass.value)
         curMail.value=nextMail.value
         page.update()
-        
-    
+
     mailClass = ft.Dropdown(
         on_change=dropdown_changed,
         options=[
@@ -32,6 +32,9 @@ def HomePage(page: ft.Page):
         page.clean()
         SendPage(page)
 
+    def retrieveAllMailsFromServer(e):
+        user.POP3client.retrieveAllMails()
+
     curMail=MailClassify(mailClass.value)
     
     sentMail=ft.TextButton(
@@ -50,9 +53,57 @@ def HomePage(page: ft.Page):
         on_click= ComposeNewMail
     )
 
+    retrieveMails=ft.TextButton(
+        text="Retrieve all mails",
+        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
+        on_click= retrieveAllMailsFromServer
+    )
+
+    USER_MAIL_BOX = MAILBOX_PATH + user.POP3client.username + "/"
+    Header = user.POP3client.getMailHeader()
+    inboxMail = ft.TextButton(
+        content=ft.Row(
+            [
+                ft.TextField(
+                    value = Header[0],
+                    read_only=True,
+                    label="From", border="none"
+                ),
+                ft.TextField(
+                    value = Header[1],
+                    read_only=True,
+                    label="Subject", border="none"
+                )
+            ],
+        ),
+        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
+    )
+
+    ButtonSection = ft.Column(
+        [
+            mailClass,
+            curMail,
+            sentMail,
+            trashCan, 
+            composeMail,
+            retrieveMails
+        ]
+    )
+
+    InboxSection = ft.Column(
+        [inboxMail]
+    )
     
 
-    page.add(mailClass,curMail,sentMail,trashCan, composeMail)
+    page.add(
+        ft.Row(
+            [
+                ButtonSection,
+                InboxSection
+            ],
+            alignment=ft.MainAxisAlignment.START
+        )
+    )
    
    
 

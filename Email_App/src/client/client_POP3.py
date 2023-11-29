@@ -44,6 +44,10 @@ class Client_POP3:
         self.endSession()
 
     def retrieveAllMails(self):
+        self.__connectWithServer()
+        self.__command_STAT() # Get number of mails
+        self.endSession()
+
         if (self.numberOfMails == None):
             return
         for i in range(1, int(self.numberOfMails) + 1):
@@ -55,10 +59,18 @@ class Client_POP3:
         self.__retrieveMailMessage(mailNumber)
         self.__retrieveAttachments()
 
+    def getMailHeader(self):
+        self.__connectWithServer()
+        self.retrieveMail(mailNumber=1)
+        self.endSession()
+        
+        res = [self.email_message['From'],self.email_message['Subject']]
+        return res
+
     def __connectWithServer(self):
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.clientSocket.connect((self.mailserver, self.port))
-        self.clientSocket.settimeout(5)
+        self.clientSocket.settimeout(2)
         recv = self.clientSocket.recv(1024).decode()
         self.__command_USER()
         self.__command_PASS()

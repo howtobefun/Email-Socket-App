@@ -1,15 +1,8 @@
 import flet as ft
-from client import *
-
-def initUser():
-    username = sender
-    password = "password"
-    SMTPclient = Client_SMTP(mailserver, SMTPport, username)
-    return SMTPclient
+from UI_User import *
 
 def ReceivePage(page: ft.Page):
- 
-    SMTPclient = initUser()
+    SMTPclient = User().SMTPclient
     fromUser = ft.TextField(label="From", width=500)
     to = ft.TextField(label="To", width=500)
     cc = ft.TextField(label="Cc", multiline=True, width=500)
