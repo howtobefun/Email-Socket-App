@@ -1,17 +1,25 @@
 import flet as ft
 from UI_User import *
 
+class FileContainerComponent:
+    def __init__(self, filePath: str, fileName: str, delete_file: callable):
+        self.filePath = filePath
+        self.fileName = fileName
+        self.delete_file = delete_file
+    def remove_file_from_list(self, e):
+        self.delete_file(self)
+   
 
 class PickFileSystem(ft.UserControl):
-    def __init__(self, filePicker):
+    def __init__(self, page):
         super().__init__()
-        self.filePicker = filePicker
+        self.page=page
 
     def build(self):
-        self.fileBar = ft.Row("")
-       # self.filePicker = ft.FilePicker(on_result=self.addFile)
+        self.fileBar = ft.Row()
+        self.filePicker = ft.FilePicker(on_result=self.addFile)
         self.filePath=ft.Text("")
-       # self.overlay.append(self.file_picker)
+        self.page.overlay.append(self.filePicker)
 
         return ft.Column(
             controls=[
@@ -21,44 +29,42 @@ class PickFileSystem(ft.UserControl):
             ]
         )
     
+    def findControlByPath(self,path: str):
+            for control in self.fileBar.controls:
+                print("Falseeeeee")
+                if control.key == path:
+                    print("Trueeee")
+                    return control
+            return None
+
+    def deleteFile(self,fileContainerComponent: FileContainerComponent):
+        controlToDelete = self.findControlByPath(fileContainerComponent.filePath)
+        if (controlToDelete == None):
+            return
+        self.filePath.value.replace(fileContainerComponent.filePath,"")
+        self.fileBar.controls.remove(controlToDelete)
+        del fileContainerComponent
+        self.update()
+
     def addFile(self,e: ft.FilePickerResultEvent):
         for x in e.files:    
-            print(x.name)
-            self.fileBar.controls.append(FileContainer(self.filePath,x.name))
+            fileContainerComponent = FileContainerComponent(x.path, x.name, self.deleteFile)
+            filePicked=ft.Container(
+                            content=ft.Row(
+                                        controls=[
+                                            ft.Text(value=x.name),
+                                            ft.IconButton(
+                                                    ft.icons.DELETE,
+                                                    on_click=fileContainerComponent.remove_file_from_list
+                                            )
+                ]
+            ),
+                            bgcolor=ft.colors.BLUE_100
+            )
+            self.fileBar.controls.append(filePicked)
             self.filePath.value = self.filePath.value+" "+x.path
             self.update()
 
-class FileContainer(ft.UserControl):
-    def __init__(self, filePath, fileName):
-        super().__init__()
-        self.filePath=filePath
-        self.fileName = fileName
-
-    def build(self):
-        return ft.Container(
-            content=ft.Row([
-                            ft.Text(value=self.fileName),
-                            ft.IconButton(
-                                        ft.icons.DELETE,
-                                        #on_click=deleteFile
-                            )
-                    ]
-            ),
-            bgcolor=ft.colors.BLUE_100
-        )
-
-       
-    def edit_clicked(self, e):
-        self.edit_name.value = self.display_task.label
-        self.display_view.visible = False
-        self.edit_view.visible = True
-        self.update()
-
-    def save_clicked(self, e):
-        self.display_task.label = self.edit_name.value
-        self.display_view.visible = True
-        self.edit_view.visible = False
-        self.update()
 
 def SendPage(page: ft.Page):
     user = User()
@@ -87,9 +93,9 @@ def SendPage(page: ft.Page):
     fileBar=ft.Row()
     filePath=ft.Text("")
 
-    def deleteFile(self,e):
-        index=self.fileBar.index()
-        del self.fileBar.controls
+    # def deleteFile(self,e):
+    #     index=self.fileBar.index()
+    #     del self.fileBar.controls
 
 
 
@@ -108,10 +114,10 @@ def SendPage(page: ft.Page):
             filePath.value = filePath.value+" "+x.path
             page.update()
 
-    file_picker = ft.FilePicker(on_result=showPickFile)
-    page.overlay.append(file_picker)
+    #file_picker = ft.FilePicker(on_result=showPickFile)
+    #page.overlay.append(file_picker)
     
-    p = PickFileSystem(file_picker) 
+    p = PickFileSystem(page) 
 
 
     # def doSomethingWithPickFile():
