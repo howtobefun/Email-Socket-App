@@ -22,25 +22,36 @@ def SendPage(page: ft.Page):
                 content= content.value,
                 attachments= filePath.value
             )
-            
-
     sendButton=ft.ElevatedButton(text="Send",on_click=send)
 
-    fileName=ft.Text("")
-    filePath = ft.Text("")
+
+
+    fileBar=ft.Row()
+    filePath=ft.Text("")
+
+    def deleteFile(self,e):
+        index=self.fileBar.index()
+        del self.fileBar.controls
+
+
+
     def showPickFile(e: ft.FilePickerResultEvent):
-        for x in e.files:
-            fileName.value=fileName.value + x.name + " "
-            filePath.value = filePath.value + x.path + ", "
+        for x in e.files:    
+            filePicked=ft.Container(
+            content=ft.Row([ft.Text(value=x.name),
+                            ft.IconButton(
+                                ft.icons.DELETE,
+                                on_click=deleteFile
+                                )
+                            ]
+                        ),
+            bgcolor=ft.colors.BLUE_100)
+            fileBar.controls.append(filePicked)
+            filePath.value = filePath.value+" "+x.path
             page.update()
 
     file_picker = ft.FilePicker(on_result=showPickFile)
     page.overlay.append(file_picker)
-
-    scrollableFileRow = ft.Row([fileName], 
-                               scroll=True,
-                               height=50,
-                            )
     
     # def doSomethingWithPickFile():
     #     if file_picker.result != None and file_picker.result.files != None:
@@ -52,9 +63,9 @@ def SendPage(page: ft.Page):
             [
                 to,cc,bcc,
                 subject,
-                ft.ElevatedButton("Choose files...",
+                ft.ElevatedButton("Choose files",
                     on_click=lambda _: file_picker.pick_files(allow_multiple=True)),
-                scrollableFileRow,
+                fileBar,
                 content
             ],
             alignment=ft.MainAxisAlignment.START
@@ -62,7 +73,7 @@ def SendPage(page: ft.Page):
         ft.Row([sendButton],alignment=ft.MainAxisAlignment.END)
     )
      
-     
+
 
 if __name__ == "__main__":
     ft.app(target=SendPage)
