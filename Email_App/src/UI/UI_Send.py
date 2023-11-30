@@ -1,6 +1,65 @@
 import flet as ft
 from UI_User import *
 
+
+class PickFileSystem(ft.UserControl):
+    def __init__(self, filePicker):
+        super().__init__()
+        self.filePicker = filePicker
+
+    def build(self):
+        self.fileBar = ft.Row("")
+       # self.filePicker = ft.FilePicker(on_result=self.addFile)
+        self.filePath=ft.Text("")
+       # self.overlay.append(self.file_picker)
+
+        return ft.Column(
+            controls=[
+                ft.ElevatedButton("Choose files",
+                                on_click=lambda _: self.filePicker.pick_files(allow_multiple=True)),
+                self.fileBar,     
+            ]
+        )
+    
+    def addFile(self,e: ft.FilePickerResultEvent):
+        for x in e.files:    
+            print(x.name)
+            self.fileBar.controls.append(FileContainer(self.filePath,x.name))
+            self.filePath.value = self.filePath.value+" "+x.path
+            self.update()
+
+class FileContainer(ft.UserControl):
+    def __init__(self, filePath, fileName):
+        super().__init__()
+        self.filePath=filePath
+        self.fileName = fileName
+
+    def build(self):
+        return ft.Container(
+            content=ft.Row([
+                            ft.Text(value=self.fileName),
+                            ft.IconButton(
+                                        ft.icons.DELETE,
+                                        #on_click=deleteFile
+                            )
+                    ]
+            ),
+            bgcolor=ft.colors.BLUE_100
+        )
+
+       
+    def edit_clicked(self, e):
+        self.edit_name.value = self.display_task.label
+        self.display_view.visible = False
+        self.edit_view.visible = True
+        self.update()
+
+    def save_clicked(self, e):
+        self.display_task.label = self.edit_name.value
+        self.display_view.visible = True
+        self.edit_view.visible = False
+        self.update()
+
 def SendPage(page: ft.Page):
     user = User()
 
@@ -23,7 +82,6 @@ def SendPage(page: ft.Page):
                 attachments= filePath.value
             )
     sendButton=ft.ElevatedButton(text="Send",on_click=send)
-
 
 
     fileBar=ft.Row()
@@ -53,6 +111,9 @@ def SendPage(page: ft.Page):
     file_picker = ft.FilePicker(on_result=showPickFile)
     page.overlay.append(file_picker)
     
+    p = PickFileSystem(file_picker) 
+
+
     # def doSomethingWithPickFile():
     #     if file_picker.result != None and file_picker.result.files != None:
     #         for f in file_picker.result.files:
@@ -63,9 +124,10 @@ def SendPage(page: ft.Page):
             [
                 to,cc,bcc,
                 subject,
-                ft.ElevatedButton("Choose files",
-                    on_click=lambda _: file_picker.pick_files(allow_multiple=True)),
-                fileBar,
+                # ft.ElevatedButton("Choose files",
+                #     on_click=lambda _: file_picker.pick_files(allow_multiple=True)),
+                # fileBar,
+                p,
                 content
             ],
             alignment=ft.MainAxisAlignment.START
