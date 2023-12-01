@@ -13,24 +13,6 @@ class InboxMailContainerComponent:
     def remove_mail_from_list(self, e):
         self.delete_mail(self)
 
-    def build(self):
-        return ft.Containerft.TextButton(
-            content=ft.Row(
-                [
-                    ft.TextField(
-                    value = self.header[0],
-                    read_only=True,
-                    label="From", border="none"
-                ),
-                ft.TextField(
-                    value = self.header[1],
-                    read_only=True,
-                    label="Subject", border="none"
-                )
-                ],
-            ),
-            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
-        )
 
 class InboxSetion(ft.UserControl):
     def __init__(self):
@@ -75,7 +57,6 @@ class InboxSetion(ft.UserControl):
                 key=Header[2]
             )
             self.InboxSectionColumn.controls.append(inboxMail)
-            self.update()
 
     def build(self):
         return self.InboxSectionColumn
@@ -183,7 +164,7 @@ def HomePage(page: ft.Page):
         ft.Row(
             [
                 ButtonSection,
-                inboxSection.InboxSectionColumn
+                inboxSection
             ],
             alignment=ft.MainAxisAlignment.START
         )
