@@ -1,4 +1,6 @@
 import flet as ft
+import os
+from email import message_from_string
 from UI_User import *
 from UI_Send import *
 
@@ -39,6 +41,28 @@ class InboxMail(ft.UserControl):
 #             inboxMail=InboxMail(header)
 #             self.inboxSection.controls.append(inboxMail)
 #         return self.inbox
+
+def getAllMailHeader():
+    user = User()
+    USER_MAILBOX_PATH = user.POP3client.USER_MAILBOX_PATH
+    res_header_list = []
+    if not os.path.exists(USER_MAILBOX_PATH):
+        return []
+    
+    msgFolders = os.listdir(USER_MAILBOX_PATH)
+    for folder in msgFolders:
+        dir = USER_MAILBOX_PATH + f"{folder}/"
+        entries = os.listdir(dir)
+        for entry in entries:
+            files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
+            for file in files:
+                with open(dir + file, 'r') as fp:
+                    content = fp.read()
+                    content = message_from_string(content)
+                    res_header = [content['From'],content['Subject']]
+                res_header_list.append(res_header)
+
+    return res_header_list
 
 def MailClassify(name):
     return ft.TextField(value="dang chon "+name)
@@ -97,8 +121,8 @@ def HomePage(page: ft.Page):
         on_click= retrieveAllMailsFromServer
     )
 
-    USER_MAIL_BOX = user.POP3client.USER_MAILBOX_PATH + user.POP3client.username + "/"
-    Headers = user.POP3client.getAllMailHeader()
+    
+    Headers = getAllMailHeader()
 
     InboxSection = ft.Column()
 

@@ -5,7 +5,6 @@ from email import message_from_string
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-savePath = "attachments/"
 SERVER_MAILBOX_PATH = "../Test_Server/"
 
 def remove_extension(file_path):
@@ -14,8 +13,6 @@ def remove_extension(file_path):
 
 class Client_POP3:
     def __init__(self, mailserver, port, username, password):
-        self.USERS_MAILBOX = "User_Mailbox/"
-
         self.mailserver = mailserver
         self.port = port
         self.clientSocket = None
@@ -27,13 +24,17 @@ class Client_POP3:
 
         self.recvData = None
         self.email_message = None
+
         self.msgFile = None
+        self.msgID = None
+        self.msgPath = None
 
         dir_path = os.path.join(SERVER_MAILBOX_PATH, username)
         if not os.path.exists(dir_path):
             os.mkdir(dir_path)
         self.serverMails = os.listdir(dir_path)
 
+        self.USERS_MAILBOX = "User_Mailbox/"
         self.USER_MAILBOX_PATH = self.USERS_MAILBOX + self.username + "/"
 
     def showNumberOfMails(self):
@@ -57,23 +58,13 @@ class Client_POP3:
             self.__connectWithServer()
             self.retrieveMail(mailNumber=i)
             self.endSession()
+        if (os.path.isdir(SERVER_MAILBOX_PATH + self.username)):
+            os.rmdir(SERVER_MAILBOX_PATH + self.username)
     
     def retrieveMail(self, mailNumber=1):
         self.__retrieveMailMessage(mailNumber)
         self.__retrieveAttachments()
-
-    def getAllMailHeader(self):
-        res_header_list = []
-        entries = os.listdir(self.USER_MAILBOX_PATH)
-        files = [entry for entry in entries if os.path.isfile(os.path.join(self.USER_MAILBOX_PATH, entry))]
-        for file in files:
-            with open(self.USER_MAILBOX_PATH + file, 'r') as fp:
-                content = fp.read()
-                content = message_from_string(content)
-                res_header = [content['From'],content['Subject']]
-            res_header_list.append(res_header)
-
-        return res_header_list
+        os.remove(SERVER_MAILBOX_PATH + self.username + "/" + self.msgFile)
 
     def __connectWithServer(self):
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -90,8 +81,11 @@ class Client_POP3:
         self.__transferMailMessageToMailBox()
 
     def __transferMailMessageToMailBox(self):
+        self.msgPath = self.USER_MAILBOX_PATH + self.msgID + "/"
         if not os.path.exists(self.USER_MAILBOX_PATH):
             os.mkdir(self.USER_MAILBOX_PATH)
+        if not os.path.exists(self.msgPath):
+            os.mkdir(self.msgPath)
 
         write_msg = MIMEMultipart()
         write_msg["From"] = self.email_message["From"]
@@ -102,7 +96,7 @@ class Client_POP3:
         for part in self.email_message.walk():
             if part.get_content_type() == 'text/plain':
                 write_msg.attach(MIMEText(part.get_payload()))
-        with open(self.USER_MAILBOX_PATH + f"/{self.msgFile}", "w") as fp:
+        with open(self.msgPath + self.msgFile, "w") as fp:
             fp.write(write_msg.as_string())
     
     def __retrieveAttachments(self):
@@ -111,7 +105,7 @@ class Client_POP3:
                 if part.get_content_type() == 'text/plain':
                     continue
                 if part.get_content_type() == 'application/octet-stream':
-                    attachmentsFolder = self.USER_MAILBOX_PATH + "Attachments/"
+                    attachmentsFolder = self.msgPath + "Attachments/"
                     if not os.path.exists(attachmentsFolder):
                         os.mkdir(attachmentsFolder)
                     completePath = attachmentsFolder + part.get_filename()
@@ -144,6 +138,10 @@ class Client_POP3:
 
     def __command_RETR(self, mailNumber=1):
         self.msgID = remove_extension(self.serverMails[mailNumber - 1])
+        if not os.path.exists(SERVER_MAILBOX_PATH + self.username):
+            os.mkdir(SERVER_MAILBOX_PATH + self.username)
+            if not os.path.exists(SERVER_MAILBOX_PATH + self.username + "/" + self.msgID):
+                os.mkdir(SERVER_MAILBOX_PATH + self.username + "/" + self.msgID)
         recv = b""
         retrCommand = f"RETR {mailNumber}\r\n"
         self.clientSocket.send(retrCommand.encode())
@@ -158,6 +156,7 @@ class Client_POP3:
 
     def __command_RETR(self, mailNumber=1):
         self.msgFile = self.serverMails[mailNumber - 1]
+        self.msgID = remove_extension(self.msgFile)
         recv = b""
         retrCommand = f"RETR {mailNumber}\r\n"
         self.clientSocket.send(retrCommand.encode())
