@@ -60,24 +60,24 @@ def HomePage(page: ft.Page):
     )
 
     USER_MAIL_BOX = MAILBOX_PATH + user.POP3client.username + "/"
-    # Header = user.POP3client.getMailHeader()
-    # inboxMail = ft.TextButton(
-    #     content=ft.Row(
-    #         [
-    #             ft.TextField(
-    #                 value = Header[0],
-    #                 read_only=True,
-    #                 label="From", border="none"
-    #             ),
-    #             ft.TextField(
-    #                 value = Header[1],
-    #                 read_only=True,
-    #                 label="Subject", border="none"
-    #             )
-    #         ],
-    #     ),
-    #     style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
-    # )
+    Header = user.POP3client.getMailHeader()
+    inboxMail = ft.TextButton(
+        content=ft.Row(
+            [
+                ft.TextField(
+                    value = Header[0],
+                    read_only=True,
+                    label="From", border="none"
+                ),
+                ft.TextField(
+                    value = Header[1],
+                    read_only=True,
+                    label="Subject", border="none"
+                )
+            ],
+        ),
+        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
+    )
 
     ButtonSection = ft.Column(
         [
@@ -91,7 +91,7 @@ def HomePage(page: ft.Page):
     )
 
     InboxSection = ft.Column(
-        #[inboxMail]
+        [inboxMail]
     )
     
 
