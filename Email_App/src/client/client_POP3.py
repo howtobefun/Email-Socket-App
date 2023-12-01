@@ -1,10 +1,11 @@
 import socket
 import os
 from email import message_from_bytes
-import time
+from email import message_from_string
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 savePath = "attachments/"
-MAILBOX_PATH = "User_Mailbox/"
 SERVER_MAILBOX_PATH = "../Test_Server/"
 
 def remove_extension(file_path):
@@ -13,6 +14,8 @@ def remove_extension(file_path):
 
 class Client_POP3:
     def __init__(self, mailserver, port, username, password):
+        self.USERS_MAILBOX = "User_Mailbox/"
+
         self.mailserver = mailserver
         self.port = port
         self.clientSocket = None
@@ -24,14 +27,14 @@ class Client_POP3:
 
         self.recvData = None
         self.email_message = None
-        self.msgID = None
+        self.msgFile = None
 
         dir_path = os.path.join(SERVER_MAILBOX_PATH, username)
         if not os.path.exists(dir_path):
             os.mkdir(dir_path)
         self.serverMails = os.listdir(dir_path)
 
-        self.USER_MAILBOX = MAILBOX_PATH + self.username + "/"
+        self.USER_MAILBOX_PATH = self.USERS_MAILBOX + self.username + "/"
 
     def showNumberOfMails(self):
         self.__connectWithServer()
@@ -59,13 +62,18 @@ class Client_POP3:
         self.__retrieveMailMessage(mailNumber)
         self.__retrieveAttachments()
 
-    def getMailHeader(self):
-        self.__connectWithServer()
-        self.retrieveMail(mailNumber=1)
-        self.endSession()
-        
-        res = [self.email_message['From'],self.email_message['Subject']]
-        return res
+    def getAllMailHeader(self):
+        res_header_list = []
+        entries = os.listdir(self.USER_MAILBOX_PATH)
+        files = [entry for entry in entries if os.path.isfile(os.path.join(self.USER_MAILBOX_PATH, entry))]
+        for file in files:
+            with open(self.USER_MAILBOX_PATH + file, 'r') as fp:
+                content = fp.read()
+                content = message_from_string(content)
+                res_header = [content['From'],content['Subject']]
+            res_header_list.append(res_header)
+
+        return res_header_list
 
     def __connectWithServer(self):
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -82,14 +90,20 @@ class Client_POP3:
         self.__transferMailMessageToMailBox()
 
     def __transferMailMessageToMailBox(self):
-        if not os.path.exists(self.USER_MAILBOX):
-            os.mkdir(self.USER_MAILBOX)
+        if not os.path.exists(self.USER_MAILBOX_PATH):
+            os.mkdir(self.USER_MAILBOX_PATH)
 
-        with open(self.USER_MAILBOX + f"/{self.msgID}.txt", "w") as fp:
-            for part in self.email_message.walk():
-                if part.get_content_type() == 'text/plain':
-                    fp.write(part.get_payload(decode=True).decode())
-
+        write_msg = MIMEMultipart()
+        write_msg["From"] = self.email_message["From"]
+        write_msg["To"] = self.email_message["To"]
+        write_msg["Cc"] = self.email_message["Cc"]
+        write_msg["Bcc"] = self.email_message["Bcc"]
+        write_msg["Subject"] = self.email_message["Subject"]
+        for part in self.email_message.walk():
+            if part.get_content_type() == 'text/plain':
+                write_msg.attach(MIMEText(part.get_payload()))
+        with open(self.USER_MAILBOX_PATH + f"/{self.msgFile}", "w") as fp:
+            fp.write(write_msg.as_string())
     
     def __retrieveAttachments(self):
         if self.email_message.is_multipart():
@@ -97,7 +111,7 @@ class Client_POP3:
                 if part.get_content_type() == 'text/plain':
                     continue
                 if part.get_content_type() == 'application/octet-stream':
-                    attachmentsFolder = self.USER_MAILBOX + "Attachments/"
+                    attachmentsFolder = self.USER_MAILBOX_PATH + "Attachments/"
                     if not os.path.exists(attachmentsFolder):
                         os.mkdir(attachmentsFolder)
                     completePath = attachmentsFolder + part.get_filename()
@@ -143,7 +157,7 @@ class Client_POP3:
         return recv
 
     def __command_RETR(self, mailNumber=1):
-        self.msgID = remove_extension(self.serverMails[mailNumber - 1])
+        self.msgFile = self.serverMails[mailNumber - 1]
         recv = b""
         retrCommand = f"RETR {mailNumber}\r\n"
         self.clientSocket.send(retrCommand.encode())
@@ -156,10 +170,6 @@ class Client_POP3:
             except socket.timeout:
                 break  # Break the loop if no data is received within the timeout
         return recv
-    # def __command_QUIT(self):
-    #     QUITcommand = "QUIT\r\n"
-    #     self.clientSocket.send(QUITcommand.encode())
-    #     self.clientSocket.recv(1024)
 
     def __command_QUIT(self):
         QUITcommand = "QUIT\r\n"

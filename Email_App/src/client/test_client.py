@@ -31,3 +31,4 @@ if __name__ == "__main__":
     POP3client.showNumberOfMails()
     POP3client.showListMails()
     POP3client.retrieveAllMails()
+    print(POP3client.getAllMailHeader())
