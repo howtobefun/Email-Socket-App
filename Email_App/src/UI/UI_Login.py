@@ -25,6 +25,8 @@ def LoginPage(page:ft.page):
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.window_width=800
     page.window_height=700
+    page.scroll=True
+    page
     #page.window_resizable=False
 
     userName= ft.TextField(label="User's Name")
