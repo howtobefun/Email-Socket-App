@@ -1,5 +1,6 @@
 import flet as ft
 import os
+import shutil
 from email import message_from_string
 from UI_User import *
 from UI_Send import *
@@ -25,6 +26,7 @@ class InboxSetion(ft.UserControl):
         controlToDelete = self.findControlByPath(mailContainerComponent.header[2])
         if (controlToDelete == None):
             return
+        shutil.rmtree(mailContainerComponent.header[2])
         self.headers.remove(mailContainerComponent.header)
         self.InboxSectionColumn.controls.remove(controlToDelete)
         del mailContainerComponent
@@ -64,7 +66,6 @@ class InboxSetion(ft.UserControl):
     def findControlByPath(self, path: str):
         for control in self.InboxSectionColumn.controls:
             if control.key == path:
-                print(control.key)
                 return control
         return None
 
@@ -79,14 +80,13 @@ def getAllMailHeader():
     for folder in msgFolders:
         dir = USER_MAILBOX_PATH + f"{folder}/"
         entries = os.listdir(dir)
-        for entry in entries:
-            files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
-            for file in files:
-                with open(dir + file, 'r') as fp:
-                    content = fp.read()
-                    content = message_from_string(content)
-                    res_header = [content['From'],content['Subject'], dir + file]
-                res_header_list.append(res_header)
+        files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
+        for file in files:
+            with open(dir + file, 'r') as fp:
+                content = fp.read()
+                content = message_from_string(content)
+                res_header = [content['From'],content['Subject'], dir]
+            res_header_list.append(res_header)
 
     return res_header_list
 

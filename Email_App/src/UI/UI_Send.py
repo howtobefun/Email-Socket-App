@@ -45,6 +45,8 @@ class PickFileSystem(ft.UserControl):
         self.update()
 
     def addFile(self,e: ft.FilePickerResultEvent):
+        if e.files == None:
+            return
         for x in e.files:    
             fileContainerComponent = FileContainerComponent(x.path, x.name, self.deleteFile)
             filePicked=ft.Container(
