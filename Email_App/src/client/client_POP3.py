@@ -145,7 +145,8 @@ class Client_POP3:
         recv = self.clientSocket.recv(1024).decode()
 
     def __command_RETR(self, mailNumber=1):
-        self.msgID = remove_extension(self.serverMails[mailNumber - 1])
+        self.msgFile = self.serverMails[mailNumber - 1]
+        self.msgID = remove_extension(self.msgFile)
         if not os.path.exists(SERVER_MAILBOX_PATH + self.username):
             os.mkdir(SERVER_MAILBOX_PATH + self.username)
             if not os.path.exists(SERVER_MAILBOX_PATH + self.username + "/" + self.msgID):
@@ -159,23 +160,6 @@ class Client_POP3:
                 break
             recv += chunk
 
-        print(recv.decode())
-        return recv
-
-    def __command_RETR(self, mailNumber=1):
-        self.msgFile = self.serverMails[mailNumber - 1]
-        self.msgID = remove_extension(self.msgFile)
-        recv = b""
-        retrCommand = f"RETR {mailNumber}\r\n"
-        self.clientSocket.send(retrCommand.encode())
-        while True:
-            try:
-                chunk = self.clientSocket.recv(1024)
-                if not chunk:
-                    break
-                recv += chunk
-            except socket.timeout:
-                break  # Break the loop if no data is received within the timeout
         return recv
 
     def __command_QUIT(self):
