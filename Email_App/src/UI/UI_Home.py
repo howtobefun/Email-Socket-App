@@ -33,6 +33,7 @@ class InboxSetion(ft.UserControl):
         self.update()
 
     def create_inbox_section(self):
+        self.headers = getAllMailHeader()
         for Header in self.headers:
             mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail)
             inboxMail = ft.TextButton(
@@ -122,6 +123,8 @@ def HomePage(page: ft.Page):
 
     def retrieveAllMailsFromServer(e):
         user.POP3client.retrieveAllMails()
+        inboxSection.create_inbox_section()
+        page.update()
 
     curMail=MailClassify(mailClass.value)
     

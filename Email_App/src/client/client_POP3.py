@@ -7,6 +7,12 @@ from email.mime.text import MIMEText
 
 SERVER_MAILBOX_PATH = "../Test_Server/"
 
+def isEmpty(path): 
+    if os.path.exists(path) and not os.path.isfile(path): 
+        return not os.listdir(path)
+    else: 
+        return False
+
 def remove_extension(file_path):
         root, extension = os.path.splitext(file_path)
         return root
@@ -65,6 +71,8 @@ class Client_POP3:
         self.__retrieveMailMessage(mailNumber)
         self.__retrieveAttachments()
         os.remove(SERVER_MAILBOX_PATH + self.username + "/" + self.msgFile)
+        if isEmpty(SERVER_MAILBOX_PATH + self.username):
+            os.rmdir(SERVER_MAILBOX_PATH + self.username)
 
     def __connectWithServer(self):
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
