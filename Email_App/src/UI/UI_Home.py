@@ -1,46 +1,74 @@
 import flet as ft
 import os
+import shutil
 from email import message_from_string
 from UI_User import *
 from UI_Send import *
 
-class InboxMail(ft.UserControl):
-    def __init__(self, header):
+class InboxMailContainerComponent:
+    def __init__(self, header: list, delete_mail: callable):
         super().__init__()
-        self.page=header
+        self.header=header
+        self.delete_mail = delete_mail
+
+    def remove_mail_from_list(self, e):
+        self.delete_mail(self)
+
+
+class InboxSetion(ft.UserControl):
+    def __init__(self):
+        super().__init__()
+        self.headers = getAllMailHeader()
+        self.InboxSectionColumn = ft.Column()
+        self.create_inbox_section()
+
+    def delete_mail(self, mailContainerComponent: InboxMailContainerComponent):
+        controlToDelete = self.findControlByPath(mailContainerComponent.header[2])
+        if (controlToDelete == None):
+            return
+        shutil.rmtree(mailContainerComponent.header[2])
+        self.headers.remove(mailContainerComponent.header)
+        self.InboxSectionColumn.controls.remove(controlToDelete)
+        del mailContainerComponent
+        self.update()
+
+    def create_inbox_section(self):
+        self.headers = getAllMailHeader()
+        for Header in self.headers:
+            mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail)
+            inboxMail = ft.TextButton(
+                content=ft.Row(
+                    [
+                        ft.TextField(
+                            value = Header[0],
+                            read_only=True,
+                            label="From", border="none",
+                            width=60
+                        ),
+                        ft.TextField(
+                            value = Header[1],
+                            read_only=True,
+                            label="Subject", border="none",
+                            width=60
+                        ),
+                        ft.IconButton(
+                            ft.icons.DELETE,
+                            on_click= mailContainerComponent.remove_mail_from_list                        )
+                    ],
+                ),
+                style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
+                key=Header[2]
+            )
+            self.InboxSectionColumn.controls.append(inboxMail)
 
     def build(self):
-        return ft.TextButton(
-            content=ft.Row(
-                [
-                    ft.TextField(
-                    value = self.header[0],
-                    read_only=True,
-                    label="From", border="none"
-                ),
-                ft.TextField(
-                    value = self.header[1],
-                    read_only=True,
-                    label="Subject", border="none"
-                )
-                ],
-            ),
-            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
-        )
+        return self.InboxSectionColumn
 
-# class InboxSetion(ft.UserControl):
-#     def __init__(self, user:User()):
-#         super().__init__()
-#         self.user=user
-#         self.inboxSection=ft.Row()
-#         self.USER_MAIL_BOX = MAILBOX_PATH + user.POP3client.username + "/"
-
-#     def build(self):
-#         for x
-#             header= self.user.POP3client.getMailHeader()
-#             inboxMail=InboxMail(header)
-#             self.inboxSection.controls.append(inboxMail)
-#         return self.inbox
+    def findControlByPath(self, path: str):
+        for control in self.InboxSectionColumn.controls:
+            if control.key == path:
+                return control
+        return None
 
 def getAllMailHeader():
     user = User()
@@ -53,14 +81,13 @@ def getAllMailHeader():
     for folder in msgFolders:
         dir = USER_MAILBOX_PATH + f"{folder}/"
         entries = os.listdir(dir)
-        for entry in entries:
-            files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
-            for file in files:
-                with open(dir + file, 'r') as fp:
-                    content = fp.read()
-                    content = message_from_string(content)
-                    res_header = [content['From'],content['Subject']]
-                res_header_list.append(res_header)
+        files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
+        for file in files:
+            with open(dir + file, 'r') as fp:
+                content = fp.read()
+                content = message_from_string(content)
+                res_header = [content['From'],content['Subject'], dir]
+            res_header_list.append(res_header)
 
     return res_header_list
 
@@ -96,6 +123,8 @@ def HomePage(page: ft.Page):
 
     def retrieveAllMailsFromServer(e):
         user.POP3client.retrieveAllMails()
+        inboxSection.create_inbox_section()
+        page.update()
 
     curMail=MailClassify(mailClass.value)
     
@@ -121,31 +150,7 @@ def HomePage(page: ft.Page):
         on_click= retrieveAllMailsFromServer
     )
 
-    
-    Headers = getAllMailHeader()
-
-    InboxSection = ft.Column()
-
-    for Header in Headers:
-        inboxMail = ft.TextButton(
-            content=ft.Row(
-                [
-                    ft.TextField(
-                        value = Header[0],
-                        read_only=True,
-                        label="From", border="none"
-                    ),
-                    ft.TextField(
-                        value = Header[1],
-                        read_only=True,
-                        label="Subject", border="none"
-                    )
-                ],
-            ),
-            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
-        )
-        InboxSection.controls.append(inboxMail)
-        page.update()
+    inboxSection = InboxSetion()
 
     ButtonSection = ft.Column(
         [
@@ -157,12 +162,12 @@ def HomePage(page: ft.Page):
             retrieveMails
         ]
     )
-
+ 
     page.add(
         ft.Row(
             [
                 ButtonSection,
-                InboxSection
+                inboxSection
             ],
             alignment=ft.MainAxisAlignment.START
         )

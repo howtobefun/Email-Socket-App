@@ -30,10 +30,10 @@ class PickFileSystem(ft.UserControl):
         )
     
     def findControlByPath(self,path: str):
-            for control in self.fileBar.controls:
-                if control.key == path:
-                    return control
-            return None
+        for control in self.fileBar.controls:
+            if control.key == path:
+                return control
+        return None
 
     def deleteFile(self,fileContainerComponent: FileContainerComponent):
         controlToDelete = self.findControlByPath(fileContainerComponent.filePath)
@@ -45,6 +45,8 @@ class PickFileSystem(ft.UserControl):
         self.update()
 
     def addFile(self,e: ft.FilePickerResultEvent):
+        if e.files == None:
+            return
         for x in e.files:    
             fileContainerComponent = FileContainerComponent(x.path, x.name, self.deleteFile)
             filePicked=ft.Container(
