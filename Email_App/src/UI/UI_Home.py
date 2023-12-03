@@ -136,8 +136,6 @@ class HomePage(ft.UserControl):
         )
         
     def build(self):
-        print("home: ",self.page.views)
-
         self.ButtonSection = ft.Column(
             [
                 self.mailFilter,

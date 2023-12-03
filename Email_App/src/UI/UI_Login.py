@@ -42,7 +42,6 @@ class LoginPage(ft.UserControl):
     
        
     def build(self):
-        print("login: ",self.page.views)
         return ft.Column(
                 controls=[
                     self.userName,self.userEmail,self.userPassword,
