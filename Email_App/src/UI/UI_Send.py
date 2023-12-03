@@ -99,6 +99,8 @@ class SendPage(ft.UserControl):
             )
 
     def build(self):
+        print("send: ",self.page.views)
+
         return ft.Column(
             controls=[
                 self.to,self.cc,self.bcc,

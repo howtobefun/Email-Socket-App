@@ -5,6 +5,7 @@ from email import message_from_string
 from UI_User import *
 from UI_Send import *
 
+
 class InboxMailContainerComponent:
     def __init__(self, header: list, delete_mail: callable):
         super().__init__()
@@ -135,6 +136,8 @@ class HomePage(ft.UserControl):
         )
         
     def build(self):
+        print("home: ",self.page.views)
+
         self.ButtonSection = ft.Column(
             [
                 self.mailFilter,
@@ -161,9 +164,10 @@ class HomePage(ft.UserControl):
         self.update()
 
     def ComposeNewMail(self,e):
-        self.page.controls.pop()
-        self.page.clean()
-        self.page.add(SendPage(self.page))
+        self.page.go('/Compose')
+        # self.page.controls.pop()
+        # self.page.clean()
+        # self.page.add(SendPage(self.page))
 
     def retrieveAllMailsFromServer(self,e):
         self.user.POP3client.retrieveAllMails()

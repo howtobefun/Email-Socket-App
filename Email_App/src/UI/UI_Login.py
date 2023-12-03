@@ -1,6 +1,7 @@
 import flet as ft
 from UI_Home import *
 
+
 def initUser(username: str, email: str, password: str):
     configData = initConfigData()
     SMTPclient = Client_SMTP(
@@ -25,7 +26,6 @@ class LoginPage(ft.UserControl):
     def __init__(self,page):
         super().__init__()
         self.page=page
-        self.setupPage()
 
         self.userName= ft.TextField(label="User's Name")
         self.userEmail= ft.TextField(label="User's Email")
@@ -33,21 +33,16 @@ class LoginPage(ft.UserControl):
 
         self.loginButton=ft.ElevatedButton(text="Login",on_click=self.login)
          
-    def setupPage(self):
-        self.page.title = "Email Client"
-        self.page.vertical_alignment = ft.MainAxisAlignment.START
-        self.page.window_width=800
-        self.page.window_height=700
-        self.page.scroll=True
+    
 
     def login(self,e):
         if all([self.userName.value,self.userEmail.value,self.userPassword.value]):
             self.user = initUser(self.userName.value, self.userEmail.value, self.userPassword.value)
-            self.page.controls.pop()
-            self.page.clean()
-            self.page.add(HomePage(self.page))
+            self.page.go('/Home')
+    
        
     def build(self):
+        print("login: ",self.page.views)
         return ft.Column(
                 controls=[
                     self.userName,self.userEmail,self.userPassword,
