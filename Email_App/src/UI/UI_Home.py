@@ -35,6 +35,7 @@ class InboxSetion(ft.UserControl):
     def create_inbox_section(self):
         self.headers = getAllMailHeader()
         for Header in self.headers:
+            print(Header)
             mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail)
             inboxMail = ft.TextButton(
                 content=ft.Row(
@@ -53,7 +54,7 @@ class InboxSetion(ft.UserControl):
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
-                            on_click= mailContainerComponent.remove_mail_from_list                        )
+                            on_click= mailContainerComponent.remove_mail_from_list)
                     ],
                 ),
                 style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
@@ -91,92 +92,94 @@ def getAllMailHeader():
 
     return res_header_list
 
-def MailClassify(name):
-    return ft.TextField(value="dang chon "+name)
 
-def HomePage(page: ft.Page):
-    user = User()
+class HomePage(ft.UserControl):
+    def __init__(self,page):
+        super().__init__()
+        self.user=User()
+        self.page=page
 
-    def dropdown_changed(e):
-        nextMail=MailClassify(mailClass.value)
-        curMail.value=nextMail.value
-        page.update()
+        self.mailFilter = ft.Dropdown(
+            on_change=self.dropdown_changed,
+            options=[
+                ft.dropdown.Option("Mail received"),
+                ft.dropdown.Option("Inbox"),
+                ft.dropdown.Option("School"),
+                ft.dropdown.Option("Work"),
+                ft.dropdown.Option("Spam"),
+            ],
+            width=200,
+            value="Mail received",
+            autofocus=True
+        )
 
-    mailClass = ft.Dropdown(
-        on_change=dropdown_changed,
-        options=[
-            ft.dropdown.Option("Mail received"),
-            ft.dropdown.Option("Inbox"),
-            ft.dropdown.Option("School"),
-            ft.dropdown.Option("Work"),
-            ft.dropdown.Option("Spam"),
-        ],
-        width=200,
-        value="Mail received",
-        autofocus=True
-    )
-
-    def ComposeNewMail(e):#e để nhận tín hiệu từ nút
-        page.controls.pop()
-        page.clean()
-        SendPage(page)
-
-    def retrieveAllMailsFromServer(e):
-        user.POP3client.retrieveAllMails()
-        inboxSection.create_inbox_section()
-        page.update()
-
-    curMail=MailClassify(mailClass.value)
-    
-    sentMail=ft.TextButton(
-        text="Sent mail",
-        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
-    )
-
-    trashCan=ft.TextButton(
-        text="Trash can",
-        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
-    )
-
-    composeMail=ft.TextButton(
-        text="Compose Mail",
-        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-        on_click= ComposeNewMail
-    )
-
-    retrieveMails=ft.TextButton(
-        text="Retrieve all mails",
-        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-        on_click= retrieveAllMailsFromServer
-    )
-
-    inboxSection = InboxSetion()
-
-    ButtonSection = ft.Column(
-        [
-            mailClass,
-            curMail,
-            sentMail,
-            trashCan, 
-            composeMail,
-            retrieveMails
-        ]
-    )
- 
-    page.add(
-        ft.Row(
+        self.inboxSection = InboxSetion()        
+        self.curMail=self.MailClassify(self.mailFilter.value)
+        self.sentMail=ft.TextButton(
+            text="Sent mail",
+            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
+        )
+        self.trashCan=ft.TextButton(
+            text="Trash can",
+            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
+        )
+        self.composeMail=ft.TextButton(
+            text="Compose Mail",
+            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
+            on_click= self.ComposeNewMail
+        )
+        self.retrieveMails=ft.TextButton(
+            text="Retrieve all mails",
+            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
+            on_click= self.retrieveAllMailsFromServer
+        )
+        
+    def build(self):
+        self.ButtonSection = ft.Column(
             [
-                ButtonSection,
-                inboxSection
+                self.mailFilter,
+                self.curMail,
+                self.sentMail,
+                self.trashCan, 
+                self.composeMail,
+                self.retrieveMails
             ],
             alignment=ft.MainAxisAlignment.START
         )
-    )
-   
+        return ft.Row(
+            controls=[
+                self.ButtonSection,
+                self.inboxSection
+            ],
+        )  
+        
+    def MailClassify(self,name):
+        return ft.TextField(value="dang chon "+name)
+
+    def dropdown_changed(self,e):
+        self.curMail.value=self.MailClassify(self.mailFilter.value).value
+        self.update()
+
+    def ComposeNewMail(self,e):
+        self.page.controls.pop()
+        self.page.clean()
+        self.page.add(SendPage(self.page))
+
+    def retrieveAllMailsFromServer(self,e):
+        self.user.POP3client.retrieveAllMails()
+        self.inboxSection.InboxSectionColumn.clean()
+        self.inboxSection.create_inbox_section()
+        self.inboxSection.update()
+
    
 
+
+def HomeMain(page: ft.Page):
+    page.add(HomePage(page))
+
+
 if __name__ == "__main__":
-    ft.app(target=HomePage)
+    ft.app(target=HomeMain)
 
      
      
