@@ -1,7 +1,6 @@
 import flet as ft
 from UI_Home import *
 
-
 def initUser(username: str, email: str, password: str):
     configData = initConfigData()
     SMTPclient = Client_SMTP(
@@ -18,7 +17,12 @@ def initUser(username: str, email: str, password: str):
         password= password
     )
 
-    user = User(SMTPclient= SMTPclient, POP3client= POP3client)
+    try:
+        user = User()
+        user.reset(SMTPclient= SMTPclient, POP3client= POP3client)
+    except:
+        user = User(SMTPclient= SMTPclient, POP3client= POP3client)
+        
     return user
 
 
@@ -32,14 +36,11 @@ class LoginPage(ft.UserControl):
         self.userPassword= ft.TextField(label="User's Password",password=True)
 
         self.loginButton=ft.ElevatedButton(text="Login",on_click=self.login)
-         
-    
 
     def login(self,e):
         if all([self.userName.value,self.userEmail.value,self.userPassword.value]):
             self.user = initUser(self.userName.value, self.userEmail.value, self.userPassword.value)
             self.page.go('/Home')
-    
        
     def build(self):
         return ft.Column(

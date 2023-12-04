@@ -36,7 +36,6 @@ class InboxSetion(ft.UserControl):
     def create_inbox_section(self):
         self.headers = getAllMailHeader()
         for Header in self.headers:
-            print(Header)
             mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail)
             inboxMail = ft.TextButton(
                 content=ft.Row(
