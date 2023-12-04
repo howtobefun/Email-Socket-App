@@ -38,4 +38,3 @@ class Mail:
 
     def getMailContent(self):
         return self.message.as_string()
-    
