@@ -1,6 +1,7 @@
 import flet as ft
 from UI_User import *
 
+
 class FileContainerComponent:
     def __init__(self, filePath: str, fileName: str, delete_file: callable):
         self.filePath = filePath
@@ -14,13 +15,12 @@ class PickFileSystem(ft.UserControl):
     def __init__(self, page):
         super().__init__()
         self.page=page
-
-    def build(self):
-        self.fileBar = ft.Row()
         self.filePicker = ft.FilePicker(on_result=self.addFile)
+        self.fileBar = ft.Row()
         self.filePath=[]
+       
+    def build(self):
         self.page.overlay.append(self.filePicker)
-
         return ft.Column(
             controls=[
                 ft.ElevatedButton("Choose files",
@@ -67,45 +67,53 @@ class PickFileSystem(ft.UserControl):
             self.update()
 
 
-def SendPage(page: ft.Page):
-    user = User()
+class SendPage(ft.UserControl):
+    def __init__(self,page):
+        super().__init__()
+        self.user = User()
+        self.page=page
+        
+        self.to = ft.TextField(label="To",height=40, width=500)
+        self.cc = ft.TextField(label="Cc", height=40,width=500)
+        self.bcc = ft.TextField(label="Bcc", height=40, width=500)
+        self.subject = ft.TextField(label="Subject", height=40,)
+        self.content= ft.TextField(label="Content", min_lines=12)
+        self.sendButton=ft.ElevatedButton(text="Send",on_click=self.send)
 
-    to = ft.TextField(label="To",height=40, width=500)
-    cc = ft.TextField(label="Cc", height=40,width=500)
-    bcc = ft.TextField(label="Bcc", height=40, width=500)
-    subject = ft.TextField(label="Subject", height=40,)
-    content= ft.TextField(label="Content", min_lines=12)
+        self.file = PickFileSystem(self.page) 
 
-    def send(e):
-        if(to.value):
-            page.add(ft.Row([ft.Text(value="Sending successfully to "+ to.value,size=10)],
-                            alignment=ft.MainAxisAlignment.CENTER))
-            user.SMTPclient.sendEmail(
-                mailTo_str= to.value,
-                cc_str= cc.value,
-                bcc_str= bcc.value,
-                subject= subject.value,
-                content= content.value,
-                attachments= ", ".join(file.filePath)
+    def send(self,e):
+        if(self.to.value):
+            self.page.add(ft.Row(
+                    [ft.Text(value="Sending successfully")],
+                    alignment=ft.MainAxisAlignment.CENTER
+                )
             )
-    sendButton=ft.ElevatedButton(text="Send",on_click=send)
-    
-    file = PickFileSystem(page) 
+            self.user.SMTPclient.sendEmail(
+                mailTo_str= self.to.value,
+                cc_str= self.cc.value,
+                bcc_str= self.bcc.value,
+                subject= self.subject.value,
+                content= self.content.value,
+                attachments= ", ".join(self.file.filePath)
+            )
 
-    page.add(
-          ft.Column(
-            [
-                to,cc,bcc,
-                subject,
-                file,
-                content
+    def build(self):
+        return ft.Column(
+            controls=[
+                self.to,self.cc,self.bcc,
+                self.subject,
+                self.file,
+                self.content,
+                ft.Row([self.sendButton],alignment=ft.MainAxisAlignment.END)
             ],
             alignment=ft.MainAxisAlignment.START
-            ),
-        ft.Row([sendButton],alignment=ft.MainAxisAlignment.END)
-    )
-     
+            )
+
+
+def SendMain(page: ft.Page):
+    page.add(SendPage(page))
 
 
 if __name__ == "__main__":
-    ft.app(target=SendPage)
+    ft.app(target=SendMain)

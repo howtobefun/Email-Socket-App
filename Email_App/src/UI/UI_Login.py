@@ -1,6 +1,7 @@
 import flet as ft
 from UI_Home import *
 
+
 def initUser(username: str, email: str, password: str):
     configData = initConfigData()
     SMTPclient = Client_SMTP(
@@ -20,38 +21,40 @@ def initUser(username: str, email: str, password: str):
     user = User(SMTPclient= SMTPclient, POP3client= POP3client)
     return user
 
-def LoginPage(page:ft.page):
-    page.title = "Email Client"
-    page.vertical_alignment = ft.MainAxisAlignment.START
-    page.window_width=800
-    page.window_height=700
-    page.scroll=True
-    page
-    #page.window_resizable=False
 
-    userName= ft.TextField(label="User's Name")
-    userEmail= ft.TextField(label="User's Email")
-    userPassword= ft.TextField(label="User's Password",password=True)
-    
-    def login(e):#e để nhận tín hiệu từ nút
-        if all([userName.value,userEmail.value,userPassword.value]):
-            user = initUser(userName.value, userEmail.value, userPassword.value)
-            page.controls.pop()
-            page.clean()
-            HomePage(page)
+class LoginPage(ft.UserControl):
+    def __init__(self,page):
+        super().__init__()
+        self.page=page
 
-    loginButton=ft.ElevatedButton(text="Login",on_click=login)
+        self.userName= ft.TextField(label="User's Name")
+        self.userEmail= ft.TextField(label="User's Email")
+        self.userPassword= ft.TextField(label="User's Password",password=True)
+
+        self.loginButton=ft.ElevatedButton(text="Login",on_click=self.login)
+         
     
-    page.add(
-            ft.Column(
-                [
-                    userName,userEmail,userPassword
+
+    def login(self,e):
+        if all([self.userName.value,self.userEmail.value,self.userPassword.value]):
+            self.user = initUser(self.userName.value, self.userEmail.value, self.userPassword.value)
+            self.page.go('/Home')
+    
+       
+    def build(self):
+        return ft.Column(
+                controls=[
+                    self.userName,self.userEmail,self.userPassword,
+                    ft.Row([self.loginButton],alignment=ft.MainAxisAlignment.END)
                 ],
                 alignment=ft.MainAxisAlignment.START
-                ),
-            ft.Row([loginButton],alignment=ft.MainAxisAlignment.END)
-        )
+            )
+            
+
+
+def LoginMain(page:ft.page):
+    page.add(LoginPage(page))
 
 
 if __name__ == "__main__":
-    ft.app(target=LoginPage)
+    ft.app(target=LoginMain)
