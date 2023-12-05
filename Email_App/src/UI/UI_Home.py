@@ -5,6 +5,54 @@ from email import message_from_string
 from UI_User import *
 from UI_Send import *
 
+def getAllMailHeader():
+    user = User()
+    USER_MAILBOX_PATH = user.POP3client.USER_MAILBOX_PATH
+    res_header_list = []
+    if not os.path.exists(USER_MAILBOX_PATH):
+        return []
+    
+    msgFolders = os.listdir(USER_MAILBOX_PATH)
+    for folder in msgFolders:
+        dir = USER_MAILBOX_PATH + f"{folder}/"
+        entries = os.listdir(dir)
+        files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
+        for file in files:
+            with open(dir + file, 'r') as fp:
+                content = fp.read()
+                content = message_from_string(content)
+                res_header = [content['From'],content['Subject'], dir]
+            res_header_list.append(res_header)
+
+    return res_header_list
+
+def download_all_attachments():
+    user = User()
+    USER_MAILBOX_PATH = user.POP3client.USER_MAILBOX_PATH
+    res_header_list = []
+    if not os.path.exists(USER_MAILBOX_PATH):
+        return []
+    
+    msgFolders = os.listdir(USER_MAILBOX_PATH)
+    for folder in msgFolders:
+        dir = USER_MAILBOX_PATH + f"{folder}/"
+        entries = os.listdir(dir)
+        files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
+        for file in files:
+            with open(dir + file, 'r') as fp:
+                content = fp.read()
+                content = message_from_string(content)
+            
+            for part in content.walk():
+                if part.get_content_type() == 'text/plain':
+                    continue
+                if part.get_content_type() == 'application/octet-stream':
+                    attachmentsFolder = dir + "Attachments/"
+                    if not os.path.exists(attachmentsFolder):
+                        os.mkdir(attachmentsFolder)
+                    completePath = attachmentsFolder + part.get_filename()
+                    with open(completePath, 'wb') as fp:
+                        fp.write(part.get_payload(decode=True))
 
 class InboxMailContainerComponent:
     def __init__(self, header: list, delete_mail: callable):
@@ -70,28 +118,6 @@ class InboxSetion(ft.UserControl):
             if control.key == path:
                 return control
         return None
-
-def getAllMailHeader():
-    user = User()
-    USER_MAILBOX_PATH = user.POP3client.USER_MAILBOX_PATH
-    res_header_list = []
-    if not os.path.exists(USER_MAILBOX_PATH):
-        return []
-    
-    msgFolders = os.listdir(USER_MAILBOX_PATH)
-    for folder in msgFolders:
-        dir = USER_MAILBOX_PATH + f"{folder}/"
-        entries = os.listdir(dir)
-        files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
-        for file in files:
-            with open(dir + file, 'r') as fp:
-                content = fp.read()
-                content = message_from_string(content)
-                res_header = [content['From'],content['Subject'], dir]
-            res_header_list.append(res_header)
-
-    return res_header_list
-
 
 class HomePage(ft.UserControl):
     def __init__(self,page):
@@ -171,9 +197,6 @@ class HomePage(ft.UserControl):
         self.inboxSection.InboxSectionColumn.clean()
         self.inboxSection.create_inbox_section()
         self.inboxSection.update()
-
-   
-
 
 def HomeMain(page: ft.Page):
     page.add(HomePage(page))
