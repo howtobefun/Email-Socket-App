@@ -10,8 +10,11 @@ def MainPage(page:ft.page):
         page.window_width=800
         page.window_height=700
         page.scroll=True
-    
-    def route_change(e): #function is called when ever the route changed(page.go())
+
+    #muốn chuyển page thì page.go()
+    #muốn page.add thì page.views[-1].controls.append()
+
+    def route_change(e): #function is called when ever the route changed (page.go())
         if page.route=='/': #default '/' nên tui ko đổi thành '/Login'
             if page.views: 
                 if page.views[-1].route=='/':
