@@ -145,8 +145,8 @@ class HomePage(ft.UserControl):
             text="Sent mail",
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
         )
-        self.trashCan=ft.TextButton(
-            text="Trash can",
+        self.dowloadButton=ft.TextButton(
+            text="Dowload All",
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
         )
         self.composeMail=ft.TextButton(
@@ -155,7 +155,7 @@ class HomePage(ft.UserControl):
             on_click= self.ComposeNewMail
         )
         self.retrieveMails=ft.TextButton(
-            text="Retrieve all mails",
+            text="Retrieve All Mails",
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
             on_click= self.retrieveAllMailsFromServer
         )
@@ -165,8 +165,8 @@ class HomePage(ft.UserControl):
             [
                 self.mailFilter,
                 self.curMail,
-                self.sentMail,
-                self.trashCan, 
+                #self.sentMail,
+                self.dowloadButton, 
                 self.composeMail,
                 self.retrieveMails
             ],

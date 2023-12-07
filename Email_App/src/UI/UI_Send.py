@@ -79,16 +79,11 @@ class SendPage(ft.UserControl):
         self.subject = ft.TextField(label="Subject", height=40,)
         self.content= ft.TextField(label="Content", min_lines=12)
         self.sendButton=ft.ElevatedButton(text="Send",on_click=self.send)
-
+        self.sendingAnnounce=ft.Text(value="")
         self.file = PickFileSystem(self.page) 
 
     def send(self,e):
         if(self.to.value):
-            self.page.add(ft.Row(
-                    [ft.Text(value="Sending successfully")],
-                    alignment=ft.MainAxisAlignment.CENTER
-                )
-            )
             self.user.SMTPclient.sendEmail(
                 mailTo_str= self.to.value,
                 cc_str= self.cc.value,
@@ -97,6 +92,9 @@ class SendPage(ft.UserControl):
                 content= self.content.value,
                 attachments= ", ".join(self.file.filePath)
             )
+            self.page.views[-1].controls.append(ft.Row([ft.Text(value="Sending successfully")],alignment=ft.MainAxisAlignment.CENTER))
+            self.page.update()
+            self.update()
 
     def build(self):
         return ft.Column(
@@ -105,7 +103,7 @@ class SendPage(ft.UserControl):
                 self.subject,
                 self.file,
                 self.content,
-                ft.Row([self.sendButton],alignment=ft.MainAxisAlignment.END)
+                ft.Row([self.sendButton],alignment=ft.MainAxisAlignment.END),
             ],
             alignment=ft.MainAxisAlignment.START
             )
