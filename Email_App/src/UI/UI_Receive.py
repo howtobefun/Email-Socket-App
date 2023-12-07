@@ -1,45 +1,38 @@
 import flet as ft
 from UI_User import *
 
-def ReceivePage(page: ft.Page):
-    SMTPclient = User().SMTPclient
-    fromUser = ft.TextField(label="From", width=500)
-    to = ft.TextField(label="To", width=500)
-    cc = ft.TextField(label="Cc", multiline=True, width=500)
-    bcc = ft.TextField(label="Bcc", multiline=True, width=500)
-    subject = ft.TextField(label="Subject", multiline=True)
-    content= ft.TextField(label="Content", multiline=True,min_lines=8)
+class ReceivePage(ft.UserControl):
+    def __init__(self,page):
+        super().__init__()
+        self.page=page
+        #self.SMTPclient = User().SMTPclient
 
-    def reply(e):#e để nhận tín hiệu từ nút
-        if(to.value):
-            page.add(ft.Row([ft.Text(value="Sending successfully to "+ to.value,size=10)],
-                            alignment=ft.MainAxisAlignment.CENTER))
-            
-            SMTPclient.sendEmail(
-                mailTo_str= to.value,
-                cc_str= cc.value,
-                bcc_str= bcc.value,
-                subject= subject.value,
-                content= content.value
-            )
+        self.fromUser = ft.TextField(label="From", width=500)
+        self.to = ft.TextField(label="To",height=40, width=500)
+        self.cc = ft.TextField(label="Cc", height=40,width=500)
+        self.bcc = ft.TextField(label="Bcc", height=40, width=500)
+        self.subject = ft.TextField(label="Subject", height=40,)
+        self.file=ft.Text(value="Received file:")
+        self.content= ft.TextField(label="Content", min_lines=8, multiline=True, height=220)
 
-    replyButton=ft.ElevatedButton(text="Reply",on_click=reply)
-   
-    page.add(
-          ft.Column(
-            [
-                fromUser,
-                to,cc,bcc,
-                subject,
-                content
+
+    def build(self):
+        return ft.Column(
+            controls=[
+                self.fromUser,
+                self.to,self.cc,self.bcc,
+                self.subject,
+                self.file,
+                self.content,
             ],
             alignment=ft.MainAxisAlignment.START
-            ),
-        ft.Row([replyButton],alignment=ft.MainAxisAlignment.END)
-    )
-     
-     
-
+            )
+   
+ 
     
+def ReceiveMain(page: ft.Page):
+    page.add(ReceivePage(page))
+
+
 if __name__ == "__main__":
-    ft.app(target=ReceivePage)
+    ft.app(target=ReceiveMain)

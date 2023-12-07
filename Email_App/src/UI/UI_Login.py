@@ -50,12 +50,3 @@ class LoginPage(ft.UserControl):
                 ],
                 alignment=ft.MainAxisAlignment.START
             )
-            
-
-
-def LoginMain(page:ft.page):
-    page.add(LoginPage(page))
-
-
-if __name__ == "__main__":
-    ft.app(target=LoginMain)
