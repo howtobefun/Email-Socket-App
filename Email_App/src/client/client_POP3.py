@@ -1,5 +1,6 @@
 import socket
 import os
+import shutil
 from email import message_from_bytes
 from email import message_from_string
 from email.mime.multipart import MIMEMultipart
@@ -35,10 +36,8 @@ class Client_POP3:
         self.msgID = None
         self.msgPath = None
 
-        dir_path = os.path.join(SERVER_MAILBOX_PATH, username)
-        if not os.path.exists(dir_path):
-            os.mkdir(dir_path)
-        self.serverMails = os.listdir(dir_path)
+        self.SERVER_USER_PATH = os.path.join(SERVER_MAILBOX_PATH, username)
+        self.serverMails = None
 
         self.USERS_MAILBOX = "User_Mailbox/"
         self.USER_MAILBOX_PATH = self.USERS_MAILBOX + self.username + "/"
@@ -62,17 +61,16 @@ class Client_POP3:
             return
         for i in range(1, int(self.numberOfMails) + 1):
             self.__connectWithServer()
-            self.retrieveMail(mailNumber=i)
+            self.retrieveMail()
             self.endSession()
         if (os.path.isdir(SERVER_MAILBOX_PATH + self.username)):
-            os.rmdir(SERVER_MAILBOX_PATH + self.username)
+            shutil.rmtree(SERVER_MAILBOX_PATH + self.username)
     
     def retrieveMail(self, mailNumber=1):
+        self.serverMails = os.listdir(self.SERVER_USER_PATH)
         self.__retrieveMailMessage(mailNumber)
-        self.__retrieveAttachments()
-        os.remove(SERVER_MAILBOX_PATH + self.username + "/" + self.msgFile)
-        if isEmpty(SERVER_MAILBOX_PATH + self.username):
-            os.rmdir(SERVER_MAILBOX_PATH + self.username)
+        self.__command_DELE(mailNumber)
+        #os.remove(SERVER_MAILBOX_PATH + self.username + "/" + self.msgFile)
 
     def __connectWithServer(self):
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -95,19 +93,10 @@ class Client_POP3:
         if not os.path.exists(self.msgPath):
             os.mkdir(self.msgPath)
 
-        write_msg = MIMEMultipart()
-        write_msg["From"] = self.email_message["From"]
-        write_msg["To"] = self.email_message["To"]
-        write_msg["Cc"] = self.email_message["Cc"]
-        write_msg["Bcc"] = self.email_message["Bcc"]
-        write_msg["Subject"] = self.email_message["Subject"]
-        for part in self.email_message.walk():
-            if part.get_content_type() == 'text/plain':
-                write_msg.attach(MIMEText(part.get_payload()))
         with open(self.msgPath + self.msgFile, "w") as fp:
-            fp.write(write_msg.as_string())
+            fp.write(self.email_message.as_string())
     
-    def __retrieveAttachments(self):
+    def __retrieveAttachments(self): # Save attachments to Attachments folder, use the logic later in UI
         if self.email_message.is_multipart():
             for part in self.email_message.walk():
                 if part.get_content_type() == 'text/plain':
@@ -155,12 +144,20 @@ class Client_POP3:
         retrCommand = f"RETR {mailNumber}\r\n"
         self.clientSocket.send(retrCommand.encode())
         while True:
-            chunk = self.clientSocket.recv(1024)
-            if not chunk:
+            try:
+                chunk = self.clientSocket.recv(1024)
+                if not chunk:
+                    break
+                recv += chunk
+            except TimeoutError:
                 break
-            recv += chunk
 
         return recv
+
+    def __command_DELE(self, mailNumber=1):
+        deleCommand = f"DELE {mailNumber}\r\n"
+        self.clientSocket.send(deleCommand.encode())
+        recv = self.clientSocket.recv(1024).decode()
 
     def __command_QUIT(self):
         QUITcommand = "QUIT\r\n"
