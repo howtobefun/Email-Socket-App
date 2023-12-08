@@ -18,6 +18,7 @@ class PickFileSystem(ft.UserControl):
         self.filePicker = ft.FilePicker(on_result=self.addFile)
         self.fileBar = ft.Row()
         self.filePath=[]
+        
        
     def build(self):
         self.page.overlay.append(self.filePicker)
@@ -47,24 +48,38 @@ class PickFileSystem(ft.UserControl):
     def addFile(self,e: ft.FilePickerResultEvent):
         if e.files == None:
             return
+        fileOverSizePath=""
         for x in e.files:    
-            fileContainerComponent = FileContainerComponent(x.path, x.name, self.deleteFile)
-            filePicked=ft.Container(
-                            content=ft.Row(
-                                        controls=[
-                                            ft.Text(value=x.name),
-                                            ft.IconButton(
-                                                    ft.icons.DELETE,
-                                                    on_click=fileContainerComponent.remove_file_from_list
-                                            )
-                                        ]
-                            ),
-                            bgcolor=ft.colors.BLUE_100,
-                            key=x.path
-            )
-            self.fileBar.controls.append(filePicked)
-            self.filePath.append(x.path)
-            self.update()
+            if x.size < 1000000:
+                fileContainerComponent = FileContainerComponent(x.path, x.name, self.deleteFile)
+                filePicked=ft.Container(
+                    content=ft.Row(
+                        controls=[
+                            ft.Text(value=x.name),
+                            ft.IconButton(
+                                ft.icons.DELETE,
+                                on_click=fileContainerComponent.remove_file_from_list
+                            )
+                        ]
+                    ),
+                    bgcolor=ft.colors.BLUE_100,
+                    key=x.path
+                )
+                self.fileBar.controls.append(filePicked)
+                self.filePath.append(x.path)
+            else:
+                if(fileOverSizePath==""):
+                    fileOverSizePath=x.name
+                else:
+                    fileOverSizePath=fileOverSizePath+"\n"+x.name
+    
+        self.update()
+        if(fileOverSizePath!=""):
+            fileOverSizeAlertDialog=ft.AlertDialog(title=ft.Text("Can't send file > 1MB"),content=ft.Text(fileOverSizePath))
+            self.page.dialog =fileOverSizeAlertDialog
+            fileOverSizeAlertDialog.open=True
+            self.page.update()
+            
 
 
 class SendPage(ft.UserControl):
@@ -77,7 +92,7 @@ class SendPage(ft.UserControl):
         self.cc = ft.TextField(label="Cc", height=40,width=500)
         self.bcc = ft.TextField(label="Bcc", height=40, width=500)
         self.subject = ft.TextField(label="Subject", height=40,)
-        self.content= ft.TextField(label="Content", min_lines=12)
+        self.content= ft.TextField(label="Content", min_lines=8, multiline=True, height=220)
         self.sendButton=ft.ElevatedButton(text="Send",on_click=self.send)
         self.sendingAnnounce=ft.Text(value="")
         self.file = PickFileSystem(self.page) 
@@ -107,11 +122,3 @@ class SendPage(ft.UserControl):
             ],
             alignment=ft.MainAxisAlignment.START
             )
-
-
-def SendMain(page: ft.Page):
-    page.add(SendPage(page))
-
-
-if __name__ == "__main__":
-    ft.app(target=SendMain)

@@ -1,9 +1,18 @@
 from UI_Login import *
 from UI_Home import *
 from UI_Send import *
-
+from UI_Receive import *
 
 def MainPage(page:ft.page):
+    # def openDialog(e):
+    #     fileOverSize=ft.AlertDialog(title=ft.Text("Can't send file > 1MB"),content=ft.Text(""))
+    #     page.dialog = fileOverSize
+    #     fileOverSize.open=True
+    #     page.update()
+
+    # page.add(ft.Row([ft.TextButton(text="open dialog",on_click=openDialog)]))
+
+
     def setupPage():
         page.title = "Email Client"
         page.vertical_alignment = ft.MainAxisAlignment.START
@@ -52,6 +61,17 @@ def MainPage(page:ft.page):
                 )
             )
 
+        if page.route=='/Receive' and page.views[-1].route!='/Receive':
+            page.views.append(
+                ft.View(
+                    route='/Receive',
+                    controls=[
+                        ft.AppBar(title=ft.Text('Receive'),bgcolor=ft.colors.BLUE_50),
+                        ReceivePage(page)
+                    ]
+                )
+            )
+
         page.update()
 
     def view_pop(e):
@@ -64,6 +84,7 @@ def MainPage(page:ft.page):
     page.on_route_change=route_change
     page.on_view_pop=view_pop
     page.go(page.route)
+    
 
 
 if __name__ == "__main__":

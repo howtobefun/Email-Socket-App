@@ -106,7 +106,8 @@ class InboxSetion(ft.UserControl):
                     ],
                 ),
                 style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-                key=Header[2]
+                key=Header[2],
+                on_click=self.checkReceiveMail
             )
             self.InboxSectionColumn.controls.append(inboxMail)
 
@@ -118,6 +119,10 @@ class InboxSetion(ft.UserControl):
             if control.key == path:
                 return control
         return None
+    
+    def checkReceiveMail(self,e):
+        #do something to load information of received mail
+        self.page.go('/Receive')
 
 class HomePage(ft.UserControl):
     def __init__(self,page):
@@ -141,18 +146,15 @@ class HomePage(ft.UserControl):
 
         self.inboxSection = InboxSetion()        
         self.curMail=self.MailClassify(self.mailFilter.value)
-        self.sentMail=ft.TextButton(
-            text="Sent mail",
-            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
-        )
         self.dowloadButton=ft.TextButton(
             text="Dowload All",
-            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10))
+            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
+            on_click=self.downloadAllMail
         )
         self.composeMail=ft.TextButton(
             text="Compose Mail",
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-            on_click= self.ComposeNewMail
+            on_click=self.composeNewMail
         )
         self.retrieveMails=ft.TextButton(
             text="Retrieve All Mails",
@@ -164,11 +166,10 @@ class HomePage(ft.UserControl):
         self.ButtonSection = ft.Column(
             [
                 self.mailFilter,
-                self.curMail,
-                #self.sentMail,
+                self.curMail,   
                 self.dowloadButton, 
                 self.composeMail,
-                self.retrieveMails
+                self.retrieveMails,
             ],
             alignment=ft.MainAxisAlignment.START
         )
@@ -186,11 +187,8 @@ class HomePage(ft.UserControl):
         self.curMail.value=self.MailClassify(self.mailFilter.value).value
         self.update()
 
-    def ComposeNewMail(self,e):
-        self.page.go('/Compose')
-        # self.page.controls.pop()
-        # self.page.clean()
-        # self.page.add(SendPage(self.page))
+    def composeNewMail(self,e):
+        self.page.go("/Compose")
 
     def retrieveAllMailsFromServer(self,e):
         self.user.POP3client.retrieveAllMails()
@@ -198,14 +196,23 @@ class HomePage(ft.UserControl):
         self.inboxSection.create_inbox_section()
         self.inboxSection.update()
 
+        self.showAnnouncement("Retrieve successfully")
+
+    def downloadAllMail(self,e):
+        #do something
+        self.showAnnouncement("Download successfully")
+
+    def showAnnouncement(self,announcement:str):
+        annouceDialog=ft.AlertDialog(content=ft.Text(value=announcement),
+                                     content_padding=ft.padding.all(20)
+                                    )
+        self.page.dialog =annouceDialog
+        annouceDialog.open=True
+        self.page.update()
+
 def HomeMain(page: ft.Page):
     page.add(HomePage(page))
 
 
 if __name__ == "__main__":
     ft.app(target=HomeMain)
-
-     
-     
-
-    
