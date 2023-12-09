@@ -90,7 +90,7 @@ class InboxSection(ft.UserControl):
                     route='/Receive', 
                     kwargs={
                         'msg_dir': inboxMail.key
-                    }
+                    } #the page will go if remove the args
                 )
             mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail)
             inboxMail = ft.TextButton(
