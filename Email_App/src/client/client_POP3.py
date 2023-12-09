@@ -72,7 +72,7 @@ class Client_POP3:
     def __connectWithServer(self):
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.clientSocket.connect((self.mailserver, self.port))
-        self.clientSocket.settimeout(2)
+        self.clientSocket.settimeout(5)
         recv = self.clientSocket.recv(1024).decode()
         self.__command_USER()
         self.__command_PASS()

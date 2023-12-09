@@ -2,6 +2,7 @@ from UI_Login import *
 from UI_Home import *
 from UI_Send import *
 from UI_Receive import *
+from urllib.parse import urlparse
 
 def MainPage(page:ft.page):
     # def openDialog(e):
@@ -60,14 +61,16 @@ def MainPage(page:ft.page):
                     ]
                 )
             )
-
-        if page.route=='/Receive' and page.views[-1].route!='/Receive':
+        
+        param=page.route
+        res=urlparse(param).path.split(", ")[-1]
+        if page.route==f"/Receive, {res}" and page.views[-1].route!=f"/Receive, {res}":
             page.views.append(
                 ft.View(
-                    route='/Receive',
+                    route=f"/Receive, {res}",
                     controls=[
                         ft.AppBar(title=ft.Text('Receive'),bgcolor=ft.colors.BLUE_50),
-                        ReceivePage(page)
+                        ReceivePage(page,res)
                     ]
                 )
             )
