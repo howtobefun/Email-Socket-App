@@ -2,9 +2,6 @@ import socket
 import os
 import shutil
 from email import message_from_bytes
-from email import message_from_string
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
 SERVER_MAILBOX_PATH = "../Test_Server/"
 
@@ -102,12 +99,13 @@ class Client_POP3:
                 if part.get_content_type() == 'text/plain':
                     continue
                 if part.get_content_type() == 'application/octet-stream':
-                    attachmentsFolder = self.msgPath + "Attachments/"
+                    attachmentsFolder = self.USER_MAILBOX_PATH + "Attachments/"
                     if not os.path.exists(attachmentsFolder):
                         os.mkdir(attachmentsFolder)
                     completePath = attachmentsFolder + part.get_filename()
-                    with open(completePath, 'wb') as fp:
-                        fp.write(part.get_payload(decode=True))
+                    if not os.path.isdir(completePath):
+                        with open(completePath, 'wb') as fp:
+                            fp.write(part.get_payload(decode=True))
 
     def endSession(self):
         self.__command_QUIT()
