@@ -85,12 +85,11 @@ class InboxSection(ft.UserControl):
         self.headers = getAllMailHeader()
         for Header in self.headers:
             def checkReceiveMail(e):
-                #do something to load information of received mail
                 self.page.go(
                     route='/Receive', 
                     kwargs={
                         'msg_dir': inboxMail.key
-                    } #the page will go if remove the args
+                    } #the page will go if remove the kwargs line
                 )
             mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail)
             inboxMail = ft.TextButton(
