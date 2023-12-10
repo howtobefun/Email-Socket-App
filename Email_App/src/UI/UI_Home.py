@@ -2,19 +2,19 @@ import flet as ft
 import os
 import shutil
 from email import message_from_string
-from UI_User import *
 from UI_Send import *
+from UI_User import *
 
-def getAllMailHeader(mailClass:str):
+def get_all_mail_header(mail_class: str):
     user = User()
-    USER_MAILBOX_PATH = user.POP3client.USER_MAILBOX_PATH+mailClass+"/"
+    USER_MAILBOX_PATH = user.POP3client.USER_MAILBOX_PATH + mail_class + "/"
     print(USER_MAILBOX_PATH)
     res_header_list = []
     if not os.path.exists(USER_MAILBOX_PATH):
         return []
-    
-    msgFolders = os.listdir(USER_MAILBOX_PATH)
-    for folder in msgFolders:
+
+    msg_folders = os.listdir(USER_MAILBOX_PATH)
+    for folder in msg_folders:
         dir = USER_MAILBOX_PATH + f"{folder}/"
         entries = os.listdir(dir)
         files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
@@ -22,7 +22,7 @@ def getAllMailHeader(mailClass:str):
             with open(dir + file, 'r') as fp:
                 content = fp.read()
                 content = message_from_string(content)
-                res_header = [content['From'],content['Subject'], dir]
+                res_header = [content['From'], content['Subject'], dir]
             res_header_list.append(res_header)
 
     return res_header_list
@@ -33,9 +33,9 @@ def download_all_attachments():
     res_header_list = []
     if not os.path.exists(USER_MAILBOX_PATH):
         return []
-    
-    msgFolders = os.listdir(USER_MAILBOX_PATH)
-    for folder in msgFolders:
+
+    msg_folders = os.listdir(USER_MAILBOX_PATH)
+    for folder in msg_folders:
         dir = USER_MAILBOX_PATH + f"{folder}/"
         entries = os.listdir(dir)
         files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
@@ -43,24 +43,24 @@ def download_all_attachments():
             with open(dir + file, 'r') as fp:
                 content = fp.read()
                 content = message_from_string(content)
-            
+
             for part in content.walk():
                 if part.get_content_type() == 'text/plain':
                     continue
                 if part.get_content_type() == 'application/octet-stream':
-                    attachmentsFolder = dir + "Attachments/"
-                    if not os.path.exists(attachmentsFolder):
-                        os.mkdir(attachmentsFolder)
-                    completePath = attachmentsFolder + part.get_filename()
-                    with open(completePath, 'wb') as fp:
+                    attachments_folder = dir + "Attachments/"
+                    if not os.path.exists(attachments_folder):
+                        os.mkdir(attachments_folder)
+                    complete_path = attachments_folder + part.get_filename()
+                    with open(complete_path, 'wb') as fp:
                         fp.write(part.get_payload(decode=True))
 
 class InboxMailContainerComponent:
-    def __init__(self, header: list, delete_mail: callable, checkReceiveMail: callable):
+    def __init__(self, header: list, delete_mail: callable, check_receive_mail: callable):
         super().__init__()
-        self.header=header
+        self.header = header
         self.delete_mail = delete_mail
-        self.routing_utility = RoutingUtility(self.header[2], checkReceiveMail)
+        self.routing_utility = RoutingUtility(self.header[2], check_receive_mail)
 
     def remove_mail_from_list(self, e):
         self.delete_mail(self)
@@ -74,107 +74,107 @@ class RoutingUtility:
         self.go(self.path)
 
 class InboxSection(ft.UserControl):
-    def __init__(self, mailClass:str):
+    def __init__(self, mail_class: str):
         super().__init__()
-        self.mailClass=mailClass
-        self.headers = getAllMailHeader(self.mailClass)
-        self.InboxSectionColumn = ft.Column()
+        self.mail_class = mail_class
+        self.headers = get_all_mail_header(self.mail_class)
+        self.inbox_section_column = ft.Column()
         self.create_inbox_section()
 
-    def delete_mail(self, mailContainerComponent: InboxMailContainerComponent):
-        controlToDelete = self.findControlByPath(mailContainerComponent.header[2])
-        if (controlToDelete == None):
+    def delete_mail(self, mail_container_component: InboxMailContainerComponent):
+        control_to_delete = self.find_control_by_path(mail_container_component.header[2])
+        if control_to_delete is None:
             return
-        shutil.rmtree(mailContainerComponent.header[2])
-        self.headers.remove(mailContainerComponent.header)
-        self.InboxSectionColumn.controls.remove(controlToDelete)
-        del mailContainerComponent
+        shutil.rmtree(mail_container_component.header[2])
+        self.headers.remove(mail_container_component.header)
+        self.inbox_section_column.controls.remove(control_to_delete)
+        del mail_container_component
         self.update()
 
-    def checkReceiveMail(self, path: str):
+    def check_receive_mail(self, path: str):
         self.page.go(f"/Receive, {path}")
 
     def create_inbox_section(self):
-        self.headers = getAllMailHeader(self.mailClass)
-        for Header in self.headers:
-            mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail, self.checkReceiveMail)
-            inboxMail = ft.TextButton(
+        self.headers = get_all_mail_header(self.mail_class)
+        for header in self.headers:
+            mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail)
+            inbox_mail = ft.TextButton(
                 content=ft.Row(
                     [
                         ft.TextField(
-                            value = Header[0],
+                            value=header[0],
                             read_only=True,
                             label="From", border="none",
                             width=60
                         ),
                         ft.TextField(
-                            value = Header[1],
+                            value=header[1],
                             read_only=True,
                             label="Subject", border="none",
                             width=60
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
-                            on_click= mailContainerComponent.remove_mail_from_list
+                            on_click=mail_container_component.remove_mail_from_list
                         )
                     ],
                 ),
                 style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-                key=Header[2], #path to mail
-                on_click=mailContainerComponent.routing_utility.go_to_receive_page
+                key=header[2],  # path to mail
+                on_click=mail_container_component.routing_utility.go_to_receive_page
             )
-            self.InboxSectionColumn.controls.append(inboxMail)
+            self.inbox_section_column.controls.append(inbox_mail)
 
     def build(self):
-        return self.InboxSectionColumn
+        return self.inbox_section_column
 
-    def findControlByPath(self, path: str):
-        for control in self.InboxSectionColumn.controls:
+    def find_control_by_path(self, path: str):
+        for control in self.inbox_section_column.controls:
             if control.key == path:
                 return control
         return None
-    
-    def changeClass(self,classChange:str):
-        self.InboxSectionColumn.controls.clear()
-        self.headers = getAllMailHeader(classChange)
-        for Header in self.headers:
-            mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail, self.checkReceiveMail)
-            inboxMail = ft.TextButton(
+
+    def change_class(self, class_change: str):  # hàm đổi inbox section
+        self.inbox_section_column.controls.clear()
+        self.headers = get_all_mail_header(class_change)
+        for header in self.headers:
+            mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail)
+            inbox_mail = ft.TextButton(
                 content=ft.Row(
                     [
                         ft.TextField(
-                            value = Header[0],
+                            value=header[0],
                             read_only=True,
                             label="From", border="none",
                             width=60
                         ),
                         ft.TextField(
-                            value = Header[1],
+                            value=header[1],
                             read_only=True,
                             label="Subject", border="none",
                             width=60
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
-                            on_click= mailContainerComponent.remove_mail_from_list
+                            on_click=mail_container_component.remove_mail_from_list
                         )
                     ],
                 ),
                 style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-                key=Header[2], #path to mail
-                on_click=mailContainerComponent.routing_utility.go_to_receive_page
+                key=header[2],  # path to mail
+                on_click=mail_container_component.routing_utility.go_to_receive_page
             )
-            self.InboxSectionColumn.controls.append(inboxMail)
+            self.inbox_section_column.controls.append(inbox_mail)
         self.update()
 
 
 class HomePage(ft.UserControl):
-    def __init__(self,page):
+    def __init__(self, page):
         super().__init__()
-        self.user=User()
-        self.page=page
+        self.user = User()
+        self.page = page
 
-        self.mailFilter = ft.Dropdown(
+        self.mail_filter = ft.Dropdown(  # lấy tên filter = self.mail_filter.value
             on_change=self.dropdown_changed,
             options=[
                 ft.dropdown.Option("Mail_Received"),
@@ -188,80 +188,79 @@ class HomePage(ft.UserControl):
             autofocus=True
         )
 
-        self.inboxSection = InboxSection(self.mailFilter.value)        
+        self.inbox_section = InboxSection(self.mail_filter.value)
 
-        self.curMail=self.MailClassify(self.mailFilter.value)
+        self.cur_mail = self.mail_classify(self.mail_filter.value)
 
-        self.dowloadButton=ft.TextButton(
-            text="Dowload All",
+        self.dowload_button = ft.TextButton(
+            text="Download All",
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-            on_click=self.downloadAllMail
+            on_click=self.download_all_mail
         )
-        self.composeMail=ft.TextButton(
+        self.compose_mail = ft.TextButton(
             text="Compose Mail",
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-            on_click=self.composeNewMail
+            on_click=self.compose_new_mail
         )
-        self.retrieveMails=ft.TextButton(
+        self.retrieve_mails = ft.TextButton(
             text="Retrieve All Mails",
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-            on_click= self.retrieveAllMailsFromServer
+            on_click=self.retrieve_all_mails_from_server
         )
-        
+
     def build(self):
-        self.ButtonSection = ft.Column(
+        self.button_section = ft.Column(
             [
-                self.mailFilter,
-                self.curMail,   
-                self.dowloadButton, 
-                self.composeMail,
-                self.retrieveMails,
+                self.mail_filter,
+                self.cur_mail,
+                self.dowload_button,
+                self.compose_mail,
+                self.retrieve_mails,
             ],
             alignment=ft.MainAxisAlignment.START
         )
         return ft.Row(
             controls=[
-                self.ButtonSection,
-                self.inboxSection
+                self.button_section,
+                self.inbox_section
             ],
-        )  
-        
-    def MailClassify(self,name):
-        return ft.TextField(value="dang chon "+name)
+        )
 
-    def dropdown_changed(self,e):
-        self.curMail.value=self.MailClassify(self.mailFilter.value).value
+    def mail_classify(self, name):
+        return ft.TextField(value="dang chon " + name)
 
-        self.inboxSection.changeClass(self.mailFilter.value) 
-    
+    def dropdown_changed(self, e):
+        self.cur_mail.value = self.mail_classify(self.mail_filter.value).value
+        self.inbox_section.change_class(self.mail_filter.value)
         self.update()
 
-    def composeNewMail(self,e):
+    def compose_new_mail(self, e):
         self.page.go("/Compose")
 
-    def retrieveAllMailsFromServer(self,e):
-        self.user.POP3client.retrieveAllMails()
-        self.inboxSection.InboxSectionColumn.clean()
-        self.inboxSection.create_inbox_section()
-        self.inboxSection.update()
+    def retrieve_all_mails_from_server(self, e):
+        self.user.POP3client.retrieve_all_mails()
+        self.inbox_section.inbox_section_column.clean()
+        self.inbox_section.create_inbox_section()
+        self.inbox_section.update()
 
-        self.showAnnouncement("Retrieve successfully")
+        self.show_announcement("Retrieve successfully")
 
-    def downloadAllMail(self,e):
-        #do something
-        self.showAnnouncement("Download successfully")
+    def download_all_mail(self, e):
+        # do something
+        self.show_announcement("Download successfully")
 
-    def showAnnouncement(self,announcement:str):
-        annouceDialog=ft.AlertDialog(content=ft.Text(value=announcement),
-                                     content_padding=ft.padding.all(20)
-                                    )
-        self.page.dialog =annouceDialog
-        annouceDialog.open=True
+    def show_announcement(self, announcement: str):
+        announce_dialog = ft.AlertDialog(content=ft.Text(value=announcement),
+                                         content_padding=ft.padding.all(20)
+                                         )
+        self.page.dialog = announce_dialog
+        announce_dialog.open = True
         self.page.update()
 
-def HomeMain(page: ft.Page):
+
+def home_main(page: ft.Page):
     page.add(HomePage(page))
 
 
 if __name__ == "__main__":
-    ft.app(target=HomeMain)
+    ft.app(target=home_main)
