@@ -16,13 +16,14 @@ def remove_extension(file_path):
         return root
 
 class Client_POP3:
-    def __init__(self, mailserver, port, username, password):
+    def __init__(self, mailserver, port, username, password, email):
         self.mailserver = mailserver
         self.port = port
         self.clientSocket = None
 
         self.username = username
         self.password = password
+        self.email = email
 
         self.numberOfMails = None
 
@@ -34,11 +35,11 @@ class Client_POP3:
         self.msgID = None
         self.msgPath = None
 
-        self.SERVER_USER_PATH = os.path.join(SERVER_MAILBOX_PATH, username)
+        self.SERVER_USER_PATH = os.path.join(SERVER_MAILBOX_PATH, self.email)
         self.serverMails = None
 
         self.USERS_MAILBOX = "User_Mailbox/"
-        self.USER_MAILBOX_PATH = self.USERS_MAILBOX + self.username + "/"
+        self.USER_MAILBOX_PATH = self.USERS_MAILBOX + self.email + "/"
 
     def showNumberOfMails(self):
         self.__connectWithServer()
@@ -61,14 +62,13 @@ class Client_POP3:
             self.__connectWithServer()
             self.retrieveMail()
             self.endSession()
-        if (os.path.isdir(SERVER_MAILBOX_PATH + self.username)):
-            shutil.rmtree(SERVER_MAILBOX_PATH + self.username)
+        if (os.path.isdir(SERVER_MAILBOX_PATH + self.email)):
+            shutil.rmtree(SERVER_MAILBOX_PATH + self.email)
     
     def retrieveMail(self, mailNumber=1):
         self.serverMails = os.listdir(self.SERVER_USER_PATH)
         self.__retrieveMailMessage(mailNumber)
         self.__command_DELE(mailNumber)
-        #os.remove(SERVER_MAILBOX_PATH + self.username + "/" + self.msgFile)
 
     def __connectWithServer(self):
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -111,7 +111,7 @@ class Client_POP3:
         self.__command_QUIT()
         
     def __command_USER(self):
-        userCommand = f"USER {self.username}\r\n"
+        userCommand = f"USER {self.email}\r\n"
         self.clientSocket.send(userCommand.encode())
         recv = self.clientSocket.recv(1024).decode()
 
@@ -135,10 +135,10 @@ class Client_POP3:
     def __command_RETR(self, mailNumber=1):
         self.msgFile = self.serverMails[mailNumber - 1]
         self.msgID = remove_extension(self.msgFile)
-        if not os.path.exists(SERVER_MAILBOX_PATH + self.username):
-            os.mkdir(SERVER_MAILBOX_PATH + self.username)
-            if not os.path.exists(SERVER_MAILBOX_PATH + self.username + "/" + self.msgID):
-                os.mkdir(SERVER_MAILBOX_PATH + self.username + "/" + self.msgID)
+        if not os.path.exists(SERVER_MAILBOX_PATH + self.email):
+            os.mkdir(SERVER_MAILBOX_PATH + self.email)
+            if not os.path.exists(SERVER_MAILBOX_PATH + self.email + "/" + self.msgID):
+                os.mkdir(SERVER_MAILBOX_PATH + self.email + "/" + self.msgID)
         recv = b""
         retrCommand = f"RETR {mailNumber}\r\n"
         self.clientSocket.send(retrCommand.encode())
