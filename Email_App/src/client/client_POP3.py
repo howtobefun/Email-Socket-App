@@ -2,9 +2,6 @@ import socket
 import os
 import shutil
 from email import message_from_bytes
-from email import message_from_string
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
 SERVER_MAILBOX_PATH = "../Test_Server/"
 
@@ -30,6 +27,7 @@ class Client_POP3:
         self.numberOfMails = None
 
         self.recvData = None
+        self.totalSize = None
         self.email_message = None
 
         self.msgFile = None
@@ -75,7 +73,6 @@ class Client_POP3:
     def __connectWithServer(self):
         self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.clientSocket.connect((self.mailserver, self.port))
-        self.clientSocket.settimeout(2)
         recv = self.clientSocket.recv(1024).decode()
         self.__command_USER()
         self.__command_PASS()
@@ -102,12 +99,13 @@ class Client_POP3:
                 if part.get_content_type() == 'text/plain':
                     continue
                 if part.get_content_type() == 'application/octet-stream':
-                    attachmentsFolder = self.msgPath + "Attachments/"
+                    attachmentsFolder = self.USER_MAILBOX_PATH + "Attachments/"
                     if not os.path.exists(attachmentsFolder):
                         os.mkdir(attachmentsFolder)
                     completePath = attachmentsFolder + part.get_filename()
-                    with open(completePath, 'wb') as fp:
-                        fp.write(part.get_payload(decode=True))
+                    if not os.path.isdir(completePath):
+                        with open(completePath, 'wb') as fp:
+                            fp.write(part.get_payload(decode=True))
 
     def endSession(self):
         self.__command_QUIT()
@@ -127,6 +125,7 @@ class Client_POP3:
         self.clientSocket.send(statCommand.encode())
         recv = self.clientSocket.recv(1024).decode()
         self.numberOfMails = recv.split()[1]
+        self.totalSize = int(recv.split()[2])
 
     def __command_LIST(self):
         listCommand = "LIST\r\n"
@@ -143,14 +142,7 @@ class Client_POP3:
         recv = b""
         retrCommand = f"RETR {mailNumber}\r\n"
         self.clientSocket.send(retrCommand.encode())
-        while True:
-            try:
-                chunk = self.clientSocket.recv(1024)
-                if not chunk:
-                    break
-                recv += chunk
-            except TimeoutError:
-                break
+        recv = self.clientSocket.recv(self.totalSize + 10)
 
         return recv
 

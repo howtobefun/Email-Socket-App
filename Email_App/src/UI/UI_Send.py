@@ -109,7 +109,6 @@ class SendPage(ft.UserControl):
             )
             self.page.views[-1].controls.append(ft.Row([ft.Text(value="Sending successfully")],alignment=ft.MainAxisAlignment.CENTER))
             self.page.update()
-            self.update()
 
     def build(self):
         return ft.Column(
