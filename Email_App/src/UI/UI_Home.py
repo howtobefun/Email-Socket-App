@@ -90,6 +90,7 @@ class InboxSection(ft.UserControl):
         self.update()
 
     def checkReceiveMail(self, path: str):
+        print(path)
         self.page.go(f"/Receive, {path}")
 
     def create_inbox_section(self):
