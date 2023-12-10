@@ -25,6 +25,7 @@ class ReceivePage(ft.UserControl):
         if self.msg_dir==None:
             return None
         dir_list=self.msg_dir.split("/")
+        print(dir_list)
         return dir_list[2]+".msg"
 
     def getMSG(self):

@@ -55,14 +55,22 @@ def download_all_attachments():
                         fp.write(part.get_payload(decode=True))
 
 class InboxMailContainerComponent:
-    def __init__(self, header: list, delete_mail: callable):
+    def __init__(self, header: list, delete_mail: callable, checkReceiveMail: callable):
         super().__init__()
         self.header=header
         self.delete_mail = delete_mail
+        self.routing_utility = RoutingUtility(self.header[2], checkReceiveMail)
 
     def remove_mail_from_list(self, e):
         self.delete_mail(self)
 
+class RoutingUtility:
+    def __init__(self, path: str, go: callable):
+        self.go = go
+        self.path = path
+
+    def go(self, e):
+        self.go(self.path)
 
 class InboxSection(ft.UserControl):
     def __init__(self):
@@ -81,13 +89,13 @@ class InboxSection(ft.UserControl):
         del mailContainerComponent
         self.update()
 
+    def checkReceiveMail(self, path: str):
+        self.page.go(f"/Receive, {path}")
+
     def create_inbox_section(self):
         self.headers = getAllMailHeader()
         for Header in self.headers:
-            def checkReceiveMail(e):
-                self.page.go(f"/Receive, {inboxMail.key}")        
-          
-            mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail)
+            mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail, self.checkReceiveMail)
             inboxMail = ft.TextButton(
                 content=ft.Row(
                     [
@@ -111,7 +119,7 @@ class InboxSection(ft.UserControl):
                 ),
                 style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
                 key=Header[2], #path to mail
-                on_click=checkReceiveMail
+                on_click=mailContainerComponent.routing_utility.go
             )
             self.InboxSectionColumn.controls.append(inboxMail)
 
