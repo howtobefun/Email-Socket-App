@@ -1,104 +1,103 @@
 import socket
 import Mail
 
-defaultSubject = "Anh DuyTech"
-defaultContent = "Anh DuyTech"
-defaultFilePath = ""
+DEFAULT_SUBJECT = "Anh DuyTech"
+DEFAULT_CONTENT = "Anh DuyTech"
+DEFAULT_FILE_PATH = ""
 
-class Client_SMTP():
+class Client_SMTP:
     def __init__(self, mailserver, port, username, password, email):
         self.mailserver = mailserver
         self.port = port
         self.username = username
         self.email = email
 
-        self.clientSocket: None
-        
-        self.endmsg = "\r\n.\r\n"
+        self.client_socket = None
+        self.end_msg = "\r\n.\r\n"
 
-    def connectWithServer(self):
-        self.clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.clientSocket.connect((self.mailserver, self.port))
-        recv = self.clientSocket.recv(1024).decode()
-        self.__command_HELO()
+    def connect_with_server(self):
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.connect((self.mailserver, self.port))
+        recv = self.client_socket.recv(1024).decode()
+        self._command_ehlo()
 
-    def sendEmail(self, mailTo_str: str, cc_str: str, bcc_str: str, subject: str, content: str, attachments: str):
-        mailTo = self.getMailTo(mailTo_str)
-        cc = self.getCC(cc_str)
-        bcc = self.getBCC(bcc_str)
+    def send_email(self, mail_to_str: str, cc_str: str, bcc_str: str, subject: str, content: str, attachments: str):
+        mail_to = self.get_mail_to(mail_to_str)
+        cc = self.get_cc(cc_str)
+        bcc = self.get_bcc(bcc_str)
 
-        for recipient in mailTo + cc:
-            self.sendOneMail(recipient, mailTo, cc, "", subject, content, attachments)
+        for recipient in mail_to + cc:
+            self.send_one_mail(recipient, mail_to, cc, "", subject, content, attachments)
 
         for recipient in bcc:
-            self.sendOneMail(recipient, mailTo, cc, recipient, subject, content, attachments)
+            self.send_one_mail(recipient, mail_to, cc, recipient, subject, content, attachments)
 
-    def sendOneMail(self, recipient: str, mailTo: list, cc: list, bcc: str, subject: str, content: str, filePaths: str):        
+    def send_one_mail(self, recipient: str, mail_to: list, cc: list, bcc: str, subject: str, content: str, file_paths: str):
         mail = Mail.Mail(
-                sender= self.email,
-                mailTo= mailTo,
-                cc= cc,
-                bcc= bcc,
-                subject= subject,
-                content = content,
-                filePaths= filePaths
-            )
-        self.connectWithServer()
-        self.__command_MAIL_FROM()
-        self.__command_RCPT_TO(recipient)
-        self.__command_DATA(mail.getMailContent())
-        self.endSession()
+            sender=self.email,
+            mail_to=mail_to,
+            cc=cc,
+            bcc=bcc,
+            subject=subject,
+            content=content,
+            file_paths=file_paths
+        )
+        self.connect_with_server()
+        self._command_mail_from()
+        self._command_rcpt_to(recipient)
+        self._command_data(mail.get_mail_content())
+        self.end_session()
 
-    def getMailTo(self, mailTo_str: str):
-        if mailTo_str != "":
-            mailTo = mailTo_str.split(Mail.COMMASPACE)
-            return mailTo
+    def get_mail_to(self, mail_to_str: str):
+        if mail_to_str != "":
+            mail_to = mail_to_str.split(Mail.COMMASPACE)
+            return mail_to
         return []
-    
-    def getCC(self, cc_str: str):
+
+    def get_cc(self, cc_str: str):
         if cc_str != "":
             cc = cc_str.split(Mail.COMMASPACE)
             return cc
         return []
 
-    def getBCC(self, bcc_str: str):
+    def get_bcc(self, bcc_str: str):
         if bcc_str != "":
             bcc = bcc_str.split(Mail.COMMASPACE)
             return bcc
         return []
 
-    def endSession(self):
-        self.__command_QUIT()
-        self.clientSocket.close()
+    def end_session(self):
+        self._command_quit()
+        self.client_socket.close()
 
-    def __command_HELO(self):
+    def _command_ehlo(self):
         command = f'EHLO [{self.mailserver}]\r\n'
-        self.clientSocket.send(command.encode())
-        recv = self.clientSocket.recv(1024).decode()
+        self.client_socket.send(command.encode())
+        recv = self.client_socket.recv(1024).decode()
 
-    def __command_MAIL_FROM(self):
+    def _command_mail_from(self):
         command = f"MAIL FROM: <{self.username}>\r\n"
-        self.clientSocket.send(command.encode())
-        recv = self.clientSocket.recv(1024).decode()
-	
-    def __command_RCPT_TO(self, recipient):
-        command = f"RCPT TO: <{recipient}>\r\n"
-        self.clientSocket.send(command.encode())
-        recv = self.clientSocket.recv(1024).decode()
-	
-    def __command_DATA(self, msg):
-        command = "DATA\r\n"
-        self.clientSocket.send(command.encode())
-        recv = self.clientSocket.recv(1024).decode()
-        if (recv[:3] == '354'):
-            sendmsg = msg + self.endmsg
-            self.clientSocket.send((sendmsg).encode())
-            self.clientSocket.recv(1024)
+        self.client_socket.send(command.encode())
+        recv = self.client_socket.recv(1024).decode()
 
-    def __command_QUIT(self):
+    def _command_rcpt_to(self, recipient):
+        command = f"RCPT TO: <{recipient}>\r\n"
+        self.client_socket.send(command.encode())
+        recv = self.client_socket.recv(1024).decode()
+
+    def _command_data(self, msg):
+        command = "DATA\r\n"
+        self.client_socket.send(command.encode())
+        recv = self.client_socket.recv(1024).decode()
+        if recv[:3] == '354':
+            send_msg = msg + self.end_msg
+            self.client_socket.send(send_msg.encode())
+            self.client_socket.recv(1024)
+
+    def _command_quit(self):
         command = "QUIT\r\n"
-        self.clientSocket.send(command.encode())
-        self.clientSocket.recv(1024)
+        self.client_socket.send(command.encode())
+        self.client_socket.recv(1024)
 
 if __name__ == "__main__":
     pass

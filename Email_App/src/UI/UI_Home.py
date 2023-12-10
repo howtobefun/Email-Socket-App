@@ -5,10 +5,9 @@ from email import message_from_string
 from UI_Send import *
 from UI_User import *
 
-def get_all_mail_header(mail_class: str):
+def get_all_mail_header(mail_class: str):#tui thêm mail class 
     user = User()
-    USER_MAILBOX_PATH = user.POP3client.USER_MAILBOX_PATH + mail_class + "/"
-    print(USER_MAILBOX_PATH)
+    USER_MAILBOX_PATH = user.pop3_client.USER_MAILBOX_PATH + mail_class + "/"
     res_header_list = []
     if not os.path.exists(USER_MAILBOX_PATH):
         return []
@@ -29,7 +28,7 @@ def get_all_mail_header(mail_class: str):
 
 def download_all_attachments():
     user = User()
-    USER_MAILBOX_PATH = user.POP3client.USER_MAILBOX_PATH
+    USER_MAILBOX_PATH = user.pop3_client.USER_MAILBOX_PATH
     res_header_list = []
     if not os.path.exists(USER_MAILBOX_PATH):
         return []
@@ -238,7 +237,7 @@ class HomePage(ft.UserControl):
         self.page.go("/Compose")
 
     def retrieve_all_mails_from_server(self, e):
-        self.user.POP3client.retrieve_all_mails()
+        self.user.pop3_client.retrieve_all_mails()
         self.inbox_section.inbox_section_column.clean()
         self.inbox_section.create_inbox_section()
         self.inbox_section.update()
@@ -247,6 +246,7 @@ class HomePage(ft.UserControl):
 
     def download_all_mail(self, e):
         # do something
+        download_all_attachments()
         self.show_announcement("Download successfully")
 
     def show_announcement(self, announcement: str):

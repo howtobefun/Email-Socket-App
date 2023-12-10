@@ -4,31 +4,31 @@ import json
 import os
 from types import SimpleNamespace
 
-def initConfigData():
-    configFilePath = 'src/config/config.json'
-    with open(configFilePath) as fp:
-        configDataObject = json.load(fp, object_hook=lambda d: SimpleNamespace(**d))
+def init_config_data():
+    config_file_path = 'src/config/config.json'
+    with open(config_file_path) as fp:
+        config_data_object = json.load(fp, object_hook=lambda d: SimpleNamespace(**d))
 
-    return configDataObject
+    return config_data_object
 
 if __name__ == "__main__":
     UI_PATH = os.path.dirname(__file__)
     os.chdir(UI_PATH + '/../../')
     
-    configDataObject = initConfigData()
+    config_data_object = init_config_data()
 
-    username = configDataObject.General.username
-    password = configDataObject.General.password
-    mailserver = configDataObject.Mailserver.ServerIP
-    SMTPport = configDataObject.Mailserver.SMTPport
-    POP3port = configDataObject.Mailserver.POP3port
+    username = config_data_object.General.username
+    password = config_data_object.General.password
+    mailserver = config_data_object.Mailserver.ServerIP
+    SMTPport = config_data_object.Mailserver.SMTPport
+    POP3port = config_data_object.Mailserver.POP3port
 
     # SMTPclient = Client_SMTP(mailserver, SMTPport, username)
-    # SMTPclient.sendEmail("duy","","","duytech","")
+    # SMTPclient.sendEmail("duy", "", "", "duytech", "")
 
     username = "123"
-    POP3client = Client_POP3(mailserver, POP3port, username, password)
-    POP3client.showNumberOfMails()
-    POP3client.showListMails()
-    POP3client.retrieveAllMails()
-    print(POP3client.getAllMailHeader())
+    pop3_client = Client_POP3(mailserver, POP3port, username, password)
+    pop3_client.show_number_of_mails()
+    pop3_client.show_list_mails()
+    pop3_client.retrieve_all_mails()
+    print(pop3_client.get_all_mail_header())
