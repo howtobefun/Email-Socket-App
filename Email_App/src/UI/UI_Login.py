@@ -14,7 +14,8 @@ def initUser(username: str, email: str, password: str):
         mailserver= configData.Mailserver.ServerIP,
         port = configData.Mailserver.POP3port,
         username= username,
-        password= password
+        password= password,
+        email= email
     )
 
     try:
