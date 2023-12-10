@@ -5,9 +5,10 @@ from email import message_from_string
 from UI_User import *
 from UI_Send import *
 
-def getAllMailHeader():
+def getAllMailHeader(mailClass:str):
     user = User()
-    USER_MAILBOX_PATH = user.POP3client.USER_MAILBOX_PATH
+    USER_MAILBOX_PATH = user.POP3client.USER_MAILBOX_PATH+mailClass+"/"
+    print(USER_MAILBOX_PATH)
     res_header_list = []
     if not os.path.exists(USER_MAILBOX_PATH):
         return []
@@ -73,9 +74,10 @@ class RoutingUtility:
         self.go(self.path)
 
 class InboxSection(ft.UserControl):
-    def __init__(self):
+    def __init__(self, mailClass:str):
         super().__init__()
-        self.headers = getAllMailHeader()
+        self.mailClass=mailClass
+        self.headers = getAllMailHeader(self.mailClass)
         self.InboxSectionColumn = ft.Column()
         self.create_inbox_section()
 
@@ -93,7 +95,7 @@ class InboxSection(ft.UserControl):
         self.page.go(f"/Receive, {path}")
 
     def create_inbox_section(self):
-        self.headers = getAllMailHeader()
+        self.headers = getAllMailHeader(self.mailClass)
         for Header in self.headers:
             mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail, self.checkReceiveMail)
             inboxMail = ft.TextButton(
@@ -131,6 +133,40 @@ class InboxSection(ft.UserControl):
             if control.key == path:
                 return control
         return None
+    
+    def changeClass(self,classChange:str):
+        self.InboxSectionColumn.controls.clear()
+        self.headers = getAllMailHeader(classChange)
+        for Header in self.headers:
+            mailContainerComponent=InboxMailContainerComponent(Header, self.delete_mail, self.checkReceiveMail)
+            inboxMail = ft.TextButton(
+                content=ft.Row(
+                    [
+                        ft.TextField(
+                            value = Header[0],
+                            read_only=True,
+                            label="From", border="none",
+                            width=60
+                        ),
+                        ft.TextField(
+                            value = Header[1],
+                            read_only=True,
+                            label="Subject", border="none",
+                            width=60
+                        ),
+                        ft.IconButton(
+                            ft.icons.DELETE,
+                            on_click= mailContainerComponent.remove_mail_from_list
+                        )
+                    ],
+                ),
+                style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
+                key=Header[2], #path to mail
+                on_click=mailContainerComponent.routing_utility.go_to_receive_page
+            )
+            self.InboxSectionColumn.controls.append(inboxMail)
+        self.update()
+
 
 class HomePage(ft.UserControl):
     def __init__(self,page):
@@ -141,19 +177,21 @@ class HomePage(ft.UserControl):
         self.mailFilter = ft.Dropdown(
             on_change=self.dropdown_changed,
             options=[
-                ft.dropdown.Option("Mail received"),
+                ft.dropdown.Option("Mail_Received"),
                 ft.dropdown.Option("Inbox"),
                 ft.dropdown.Option("School"),
                 ft.dropdown.Option("Work"),
                 ft.dropdown.Option("Spam"),
             ],
             width=200,
-            value="Mail received",
+            value="Mail_Received",
             autofocus=True
         )
 
-        self.inboxSection = InboxSection()        
+        self.inboxSection = InboxSection(self.mailFilter.value)        
+
         self.curMail=self.MailClassify(self.mailFilter.value)
+
         self.dowloadButton=ft.TextButton(
             text="Dowload All",
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
@@ -193,6 +231,9 @@ class HomePage(ft.UserControl):
 
     def dropdown_changed(self,e):
         self.curMail.value=self.MailClassify(self.mailFilter.value).value
+
+        self.inboxSection.changeClass(self.mailFilter.value) 
+    
         self.update()
 
     def composeNewMail(self,e):

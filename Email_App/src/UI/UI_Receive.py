@@ -13,13 +13,17 @@ class ReceivePage(ft.UserControl):
 
         content = self.getContent()
 
-        self.fromUser = ft.TextField(label="From", width=500, value=self.msg['From'])
-        self.to = ft.TextField(label="To",height=40, width=500, value=self.msg['To'])
-        self.cc = ft.TextField(label="Cc", height=40,width=500, value=self.msg['Cc'])
-        self.bcc = ft.TextField(label="Bcc", height=40, width=500, value=self.msg['Bcc'])
-        self.subject = ft.TextField(label="Subject", height=40, value=self.msg['Subject'])
+        self.fromSender = ft.TextField(label="From",height=40, expand=True, value=self.msg['From'],read_only=True)
+        self.to = ft.TextField(label="To",height=40, value=self.msg['To'],read_only=True)
+        self.cc = ft.TextField(label="Cc", height=40, value=self.msg['Cc'],read_only=True)
+        self.bcc = ft.TextField(label="Bcc", height=40, value=self.msg['Bcc'],read_only=True)
+        self.subject = ft.TextField(label="Subject", height=40, value=self.msg['Subject'],read_only=True)
         self.file=ft.Text(value="Received file:")
-        self.content= ft.TextField(label="Content", min_lines=8, multiline=True, height=220, value=content)
+        self.content= ft.TextField(label="Content", min_lines=8, multiline=True, height=250, value=content,read_only=True)
+        self.dowloadButton=ft.IconButton(ft.icons.DOWNLOAD_ROUNDED,tooltip="Download Mail",on_click=self.download)
+
+    def download(self,e):
+        pass
 
     def getFileName(self):
         if self.msg_dir==None:
@@ -44,7 +48,7 @@ class ReceivePage(ft.UserControl):
     def build(self):
         return ft.Column(
                 controls=[
-                    self.fromUser,
+                    ft.Row([self.fromSender,self.dowloadButton]),
                     self.to,self.cc,self.bcc,
                     self.subject,
                     self.file,

@@ -50,7 +50,7 @@ class PickFileSystem(ft.UserControl):
             return
         fileOverSizePath=""
         for x in e.files:    
-            if x.size < 1000000:
+            if x.size < 3000000:
                 fileContainerComponent = FileContainerComponent(x.path, x.name, self.deleteFile)
                 filePicked=ft.Container(
                     content=ft.Row(
@@ -75,7 +75,7 @@ class PickFileSystem(ft.UserControl):
     
         self.update()
         if(fileOverSizePath!=""):
-            fileOverSizeAlertDialog=ft.AlertDialog(title=ft.Text("Can't send file > 1MB"),content=ft.Text(fileOverSizePath))
+            fileOverSizeAlertDialog=ft.AlertDialog(title=ft.Text("Can't send file > 3MB"),content=ft.Text(fileOverSizePath))
             self.page.dialog =fileOverSizeAlertDialog
             fileOverSizeAlertDialog.open=True
             self.page.update()

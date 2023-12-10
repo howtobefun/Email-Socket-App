@@ -5,15 +5,6 @@ from UI_Receive import *
 from urllib.parse import urlparse
 
 def MainPage(page:ft.page):
-    # def openDialog(e):
-    #     fileOverSize=ft.AlertDialog(title=ft.Text("Can't send file > 1MB"),content=ft.Text(""))
-    #     page.dialog = fileOverSize
-    #     fileOverSize.open=True
-    #     page.update()
-
-    # page.add(ft.Row([ft.TextButton(text="open dialog",on_click=openDialog)]))
-
-
     def setupPage():
         page.title = "Email Client"
         page.vertical_alignment = ft.MainAxisAlignment.START
