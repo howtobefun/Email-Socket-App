@@ -69,7 +69,7 @@ class RoutingUtility:
         self.go = go
         self.path = path
 
-    def go(self, e):
+    def go_to_receive_page(self, e):
         self.go(self.path)
 
 class InboxSection(ft.UserControl):
@@ -90,7 +90,6 @@ class InboxSection(ft.UserControl):
         self.update()
 
     def checkReceiveMail(self, path: str):
-        print(path)
         self.page.go(f"/Receive, {path}")
 
     def create_inbox_section(self):
@@ -120,7 +119,7 @@ class InboxSection(ft.UserControl):
                 ),
                 style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
                 key=Header[2], #path to mail
-                on_click=mailContainerComponent.routing_utility.go
+                on_click=mailContainerComponent.routing_utility.go_to_receive_page
             )
             self.InboxSectionColumn.controls.append(inboxMail)
 
