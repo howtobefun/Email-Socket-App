@@ -1,7 +1,7 @@
 from Include import *
 from client_SMTP import *
 from client_POP3 import *
-from test_client import *
+from config_handling import *
 
 class Singleton(type):
     _instances = {}
@@ -16,10 +16,10 @@ class Singleton(type):
         return cls._instances[cls]
 
 class User(metaclass=Singleton):
-    def __init__(self, SMTPclient: Client_SMTP, POP3client: Client_POP3):
-        self.SMTPclient = SMTPclient
-        self.POP3client = POP3client
+    def __init__(self, smtp_client: Client_SMTP, pop3_client:Client_POP3):
+        self.smtp_client = smtp_client
+        self.pop3_client = pop3_client
 
-    def reset(self, SMTPclient: Client_SMTP, POP3client: Client_POP3):
-        self.SMTPclient = SMTPclient
-        self.POP3client = POP3client
+    def reset(self, smtp_client: Client_SMTP, pop3_client: Client_POP3):
+        self.smtp_client = smtp_client
+        self.pop3_client = pop3_client

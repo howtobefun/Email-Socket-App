@@ -1,53 +1,52 @@
 import flet as ft
 from UI_Home import *
 
-def initUser(username: str, email: str, password: str):
-    configData = initConfigData()
-    SMTPclient = Client_SMTP(
-        mailserver= configData.Mailserver.ServerIP,
-        port = configData.Mailserver.SMTPport,
-        username= username,
-        password= password,
-        email= email
+def init_user(username: str, email: str, password: str):
+    config_data = init_config_data()
+    smtp_client = Client_SMTP(
+        mailserver=config_data.Mailserver.ServerIP,
+        port=config_data.Mailserver.SMTPport,
+        username=username,
+        password=password,
+        email=email
     )
-    POP3client = Client_POP3(
-        mailserver= configData.Mailserver.ServerIP,
-        port = configData.Mailserver.POP3port,
-        username= username,
-        password= password,
-        email= email
+    pop3_client = Client_POP3(
+        mailserver=config_data.Mailserver.ServerIP,
+        port=config_data.Mailserver.POP3port,
+        username=username,
+        password=password,
+        email=email
     )
 
     try:
         user = User()
-        user.reset(SMTPclient= SMTPclient, POP3client= POP3client)
+        user.reset(smtp_client=smtp_client, pop3_client=pop3_client)
     except:
-        user = User(SMTPclient= SMTPclient, POP3client= POP3client)
-        
+        user = User(smtp_client=smtp_client, pop3_client=pop3_client)
+
     return user
 
-
 class LoginPage(ft.UserControl):
-    def __init__(self,page):
+    def __init__(self, page):
         super().__init__()
-        self.page=page
+        self.page = page
 
-        self.userName= ft.TextField(label="User's Name")
-        self.userEmail= ft.TextField(label="User's Email")
-        self.userPassword= ft.TextField(label="User's Password",password=True)
+        self.user_name = ft.TextField(label="User's Name")
+        self.user_email = ft.TextField(label="User's Email")
+        self.user_password = ft.TextField(label="User's Password", password=True)
 
-        self.loginButton=ft.ElevatedButton(text="Login",on_click=self.login)
+        self.login_button = ft.ElevatedButton(text="Login", on_click=self.login)
 
-    def login(self,e):
-        if all([self.userName.value,self.userEmail.value,self.userPassword.value]):
-            self.user = initUser(self.userName.value, self.userEmail.value, self.userPassword.value)
+    def login(self, e):
+        if all([self.user_name.value, self.user_email.value, self.user_password.value]):
+            self.user = init_user(self.user_name.value, self.user_email.value, self.user_password.value)
             self.page.go('/Home')
-       
+
     def build(self):
         return ft.Column(
-                controls=[
-                    self.userName,self.userEmail,self.userPassword,
-                    ft.Row([self.loginButton],alignment=ft.MainAxisAlignment.END)
-                ],
-                alignment=ft.MainAxisAlignment.START
-            )
+            controls=[
+                self.user_name, self.user_email, self.user_password,
+                ft.Row([self.login_button], alignment=ft.MainAxisAlignment.END)
+            ],
+            alignment=ft.MainAxisAlignment.START
+        )
