@@ -1,7 +1,7 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
-import os
+from os.path import basename
 
 COMMASPACE = ", "
 END_MSG = "\r\n.\r\n"
@@ -29,7 +29,7 @@ class Mail:
             if not path:
                 continue
             with open(path, "rb") as file:
-                basename = os.path.basename(path)
+                basename = basename(path)
                 attachment = MIMEApplication(file.read(), Name=basename)
                 attachment['Content-Disposition'] = f'attachment; filename= "{basename}"'
                 attachments.append(attachment)

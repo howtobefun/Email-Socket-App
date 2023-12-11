@@ -1,4 +1,4 @@
-import socket
+from socket import socket
 import Mail
 
 DEFAULT_SUBJECT = "Anh DuyTech"
@@ -16,7 +16,7 @@ class Client_SMTP:
         self.end_msg = "\r\n.\r\n"
 
     def connect_with_server(self):
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket = socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.mailserver, self.port))
         recv = self.client_socket.recv(1024).decode()
         self.__command_ehlo()
