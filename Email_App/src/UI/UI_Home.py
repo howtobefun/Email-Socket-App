@@ -24,7 +24,7 @@ def get_all_mail_header(mail_class: str):#tui thêm mail class
                 content = message_from_string(content)
                 res_header = [content['From'], content['Subject'], dir]
             res_header_list.append(res_header)
-
+            
     return res_header_list
 
 class InboxMailContainerComponent:

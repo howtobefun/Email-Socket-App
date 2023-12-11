@@ -71,4 +71,4 @@ class Filter:
         if not os.path.exists(mail_class_path + msg_folder):
             os.mkdir(mail_class_path + msg_folder)
         
-        shutil.copy(source_file, destination_file)
+        shutil.move(source_file, destination_file)
