@@ -133,9 +133,10 @@ class InboxSection(ft.UserControl):
                 return control
         return None
 
-    def change_class(self, class_change: str):  # hàm đổi inbox section
+    def change_class(self, class_change: str):  # hàm đổi inbox section, tui đang ko biết có nên gộp 2 hàm change_class với create_inbox_section lại làm 1 ko
         self.inbox_section_column.controls.clear()
-        self.headers = get_all_mail_header(class_change)
+        self.mail_class=class_change
+        self.headers = get_all_mail_header(self.mail_class)
         for header in self.headers:
             mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail)
             inbox_mail = ft.TextButton(
