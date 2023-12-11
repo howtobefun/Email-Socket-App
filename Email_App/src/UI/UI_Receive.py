@@ -1,5 +1,7 @@
 import flet as ft
 from email import message_from_file
+import os
+from email import message_from_string
 from UI_User import *
 
 class ReceivePage(ft.UserControl):
@@ -8,6 +10,7 @@ class ReceivePage(ft.UserControl):
         self.page = page
 
         self.msg_dir = msg_dir
+        # self.folder_dir = os.path.dirname(self.msg_dir) currently not used
         self.msg_file = self.msg_dir + self.get_file_name()
         self.msg = self.get_msg()
 
@@ -24,13 +27,14 @@ class ReceivePage(ft.UserControl):
         self.download_button = ft.IconButton(ft.icons.DOWNLOAD_ROUNDED, tooltip="Download Mail", on_click=self.download)
 
     def download(self, e):
-        pass
+        self.__download_all_attachments()
+        self.show_announcement("Downloaded successfully")
 
     def get_file_name(self):
         if self.msg_dir is None:
             return None
         dir_list = self.msg_dir.split("/")
-        return dir_list[2] + ".msg"
+        return dir_list[3]
 
     def get_msg(self):
         if self.msg_file is None:
@@ -57,7 +61,32 @@ class ReceivePage(ft.UserControl):
             ],
             alignment=ft.MainAxisAlignment.START
         )
+    
+    def __download_all_attachments(self):
+        user = User()
+        attachments_folder = user.pop3_client.USER_MAILBOX_PATH + "Attachments/"
+        with open(self.msg_file, 'r') as fp:
+            content = fp.read()
+            content = message_from_string(content)
 
+        for part in content.walk():
+            if part.get_content_type() == 'text/plain':
+                continue
+            if part.get_content_type() == 'application/octet-stream':
+                if not os.path.exists(attachments_folder):
+                    os.mkdir(attachments_folder)
+                complete_path = attachments_folder + part.get_filename()
+                with open(complete_path, 'wb') as fp:
+                    fp.write(part.get_payload(decode=True))
+    
+    def show_announcement(self, announcement: str):
+        announce_dialog = ft.AlertDialog(
+            content=ft.Text(value=announcement),
+            content_padding=ft.padding.all(20)
+        )
+        self.page.dialog = announce_dialog
+        announce_dialog.open = True
+        self.page.update()
 
 def receive_main(page: ft.Page):
     page.add(ReceivePage(page))

@@ -26,34 +26,6 @@ def get_all_mail_header(mail_class: str):#tui thêm mail class
 
     return res_header_list
 
-def download_all_attachments():
-    user = User()
-    USER_MAILBOX_PATH = user.pop3_client.USER_MAILBOX_PATH
-    res_header_list = []
-    if not os.path.exists(USER_MAILBOX_PATH):
-        return []
-
-    msg_folders = os.listdir(USER_MAILBOX_PATH)
-    for folder in msg_folders:
-        dir = USER_MAILBOX_PATH + f"{folder}/"
-        entries = os.listdir(dir)
-        files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
-        for file in files:
-            with open(dir + file, 'r') as fp:
-                content = fp.read()
-                content = message_from_string(content)
-
-            for part in content.walk():
-                if part.get_content_type() == 'text/plain':
-                    continue
-                if part.get_content_type() == 'application/octet-stream':
-                    attachments_folder = dir + "Attachments/"
-                    if not os.path.exists(attachments_folder):
-                        os.mkdir(attachments_folder)
-                    complete_path = attachments_folder + part.get_filename()
-                    with open(complete_path, 'wb') as fp:
-                        fp.write(part.get_payload(decode=True))
-
 class InboxMailContainerComponent:
     def __init__(self, header: list, delete_mail: callable, check_receive_mail: callable):
         super().__init__()
@@ -192,11 +164,6 @@ class HomePage(ft.UserControl):
 
         self.cur_mail = self.mail_classify(self.mail_filter.value)
 
-        self.dowload_button = ft.TextButton(
-            text="Download All",
-            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-            on_click=self.download_all_mail
-        )
         self.compose_mail = ft.TextButton(
             text="Compose Mail",
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
@@ -213,7 +180,6 @@ class HomePage(ft.UserControl):
             [
                 self.mail_filter,
                 self.cur_mail,
-                self.dowload_button,
                 self.compose_mail,
                 self.retrieve_mails,
             ],
@@ -243,17 +209,13 @@ class HomePage(ft.UserControl):
         self.inbox_section.create_inbox_section()
         self.inbox_section.update()
 
-        self.show_announcement("Retrieve successfully")
-
-    def download_all_mail(self, e):
-        # do something
-        download_all_attachments()
-        self.show_announcement("Download successfully")
+        self.show_announcement("Retrieved successfully")
 
     def show_announcement(self, announcement: str):
-        announce_dialog = ft.AlertDialog(content=ft.Text(value=announcement),
-                                         content_padding=ft.padding.all(20)
-                                         )
+        announce_dialog = ft.AlertDialog(
+            content=ft.Text(value=announcement),
+            content_padding=ft.padding.all(20)
+        )
         self.page.dialog = announce_dialog
         announce_dialog.open = True
         self.page.update()

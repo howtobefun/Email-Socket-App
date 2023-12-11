@@ -19,7 +19,7 @@ class Client_SMTP:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.mailserver, self.port))
         recv = self.client_socket.recv(1024).decode()
-        self._command_ehlo()
+        self.__command_ehlo()
 
     def send_email(self, mail_to_str: str, cc_str: str, bcc_str: str, subject: str, content: str, attachments: str):
         mail_to = self.get_mail_to(mail_to_str)
@@ -43,9 +43,9 @@ class Client_SMTP:
             file_paths=file_paths
         )
         self.connect_with_server()
-        self._command_mail_from()
-        self._command_rcpt_to(recipient)
-        self._command_data(mail.get_mail_content())
+        self.__command_mail_from()
+        self.__command_rcpt_to(recipient)
+        self.__command_data(mail.get_mail_content())
         self.end_session()
 
     def get_mail_to(self, mail_to_str: str):
@@ -67,25 +67,25 @@ class Client_SMTP:
         return []
 
     def end_session(self):
-        self._command_quit()
+        self.__command_quit()
         self.client_socket.close()
 
-    def _command_ehlo(self):
+    def __command_ehlo(self):
         command = f'EHLO [{self.mailserver}]\r\n'
         self.client_socket.send(command.encode())
         recv = self.client_socket.recv(1024).decode()
 
-    def _command_mail_from(self):
+    def __command_mail_from(self):
         command = f"MAIL FROM: <{self.username}>\r\n"
         self.client_socket.send(command.encode())
         recv = self.client_socket.recv(1024).decode()
 
-    def _command_rcpt_to(self, recipient):
+    def __command_rcpt_to(self, recipient):
         command = f"RCPT TO: <{recipient}>\r\n"
         self.client_socket.send(command.encode())
         recv = self.client_socket.recv(1024).decode()
 
-    def _command_data(self, msg):
+    def __command_data(self, msg):
         command = "DATA\r\n"
         self.client_socket.send(command.encode())
         recv = self.client_socket.recv(1024).decode()
@@ -94,7 +94,7 @@ class Client_SMTP:
             self.client_socket.send(send_msg.encode())
             self.client_socket.recv(1024)
 
-    def _command_quit(self):
+    def __command_quit(self):
         command = "QUIT\r\n"
         self.client_socket.send(command.encode())
         self.client_socket.recv(1024)

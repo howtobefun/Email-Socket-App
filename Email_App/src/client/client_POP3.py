@@ -2,6 +2,7 @@ import socket
 import os
 import shutil
 from email import message_from_bytes
+from math import ceil
 
 SERVER_MAILBOX_PATH = "../Test_Server/"
 
@@ -28,7 +29,7 @@ class Client_POP3:
         self.number_of_mails = None
 
         self.recv_data = None
-        self.total_size = None
+        self.msg_size = None
         self.email_message = None
 
         self.msg_file = None
@@ -40,6 +41,8 @@ class Client_POP3:
 
         self.USERS_MAILBOX = "User_Mailbox/"
         self.USER_MAILBOX_PATH = self.USERS_MAILBOX + self.email + "/"
+        self.MAIL_RECEIVED_FOLDER = self.USER_MAILBOX_PATH + "Mail_Received/"
+        
 
     def show_number_of_mails(self):
         self.__connect_with_server()
@@ -53,17 +56,18 @@ class Client_POP3:
 
     def retrieve_all_mails(self):
         self.__connect_with_server()
-        self.__command_stat()  # Get number of mails
+        self.__command_stat()
         self.end_session()
 
         if self.number_of_mails is None:
             return
         for i in range(1, int(self.number_of_mails) + 1):
             self.__connect_with_server()
+            self.__command_list()
             self.retrieve_mail()
+            self.remove_server_mailbox()
             self.end_session()
-        if os.path.isdir(SERVER_MAILBOX_PATH + self.email):
-            shutil.rmtree(SERVER_MAILBOX_PATH + self.email)
+        self.remove_server_mailbox()
 
     def retrieve_mail(self, mail_number=1):
         self.server_mails = os.listdir(self.SERVER_USER_PATH)
@@ -84,11 +88,7 @@ class Client_POP3:
         self.__transfer_mail_message_to_mailbox()
 
     def __transfer_mail_message_to_mailbox(self):
-        self.msg_path = os.path.join(self.USER_MAILBOX_PATH, self.msg_id)
-        if not os.path.exists(self.USER_MAILBOX_PATH):
-            os.mkdir(self.USER_MAILBOX_PATH)
-        if not os.path.exists(self.msg_path):
-            os.mkdir(self.msg_path)
+        self.__generate_mailbox()
 
         with open(os.path.join(self.msg_path, self.msg_file), "w") as fp:
             fp.write(self.email_message.as_string())
@@ -125,24 +125,27 @@ class Client_POP3:
         self.client_socket.send(stat_command.encode())
         recv = self.client_socket.recv(1024).decode()
         self.number_of_mails = recv.split()[1]
-        self.total_size = int(recv.split()[2])
 
     def __command_list(self):
-        list_command = "LIST\r\n"
+        list_command = "LIST 1\r\n"
         self.client_socket.send(list_command.encode())
         recv = self.client_socket.recv(1024).decode()
+        if recv.startswith('+OK'):
+            _, msg_number, msg_size, full_stop = recv.split()
+            self.msg_size = int(msg_size)
 
     def __command_retr(self, mail_number=1):
         self.msg_file = self.server_mails[mail_number - 1]
         self.msg_id = remove_extension(self.msg_file)
-        if not os.path.exists(os.path.join(SERVER_MAILBOX_PATH, self.email)):
-            os.mkdir(os.path.join(SERVER_MAILBOX_PATH, self.email))
-            if not os.path.exists(os.path.join(SERVER_MAILBOX_PATH, self.email, self.msg_id)):
-                os.mkdir(os.path.join(SERVER_MAILBOX_PATH, self.email, self.msg_id))
+        self.msg_path = os.path.join(self.MAIL_RECEIVED_FOLDER, self.msg_file)
+
         recv = b""
         retr_command = f"RETR {mail_number}\r\n"
         self.client_socket.send(retr_command.encode())
-        recv = self.client_socket.recv(self.total_size + 10)
+        
+        for i in range(ceil(self.msg_size / 1024)):
+            chunk = self.client_socket.recv(1024)
+            recv += chunk
 
         return recv
 
@@ -155,6 +158,23 @@ class Client_POP3:
         quit_command = "QUIT\r\n"
         self.client_socket.send(quit_command.encode())
         self.client_socket.close()
+
+    def __generate_mailbox(self):
+        if not os.path.exists(self.USERS_MAILBOX):
+            os.mkdir(self.USERS_MAILBOX)
+        if not os.path.exists(self.USER_MAILBOX_PATH):
+            os.mkdir(self.USER_MAILBOX_PATH)
+        if not os.path.exists(self.MAIL_RECEIVED_FOLDER):
+            os.mkdir(self.MAIL_RECEIVED_FOLDER)
+        if not os.path.exists(self.msg_path):
+            os.mkdir(self.msg_path)
+
+    def remove_server_mailbox(self):
+        if os.path.isdir(SERVER_MAILBOX_PATH + self.email):
+            try:
+                os.rmdir(SERVER_MAILBOX_PATH + self.email)
+            except:
+                shutil.rmtree(SERVER_MAILBOX_PATH + self.email)
 
 if __name__ == "__main__":
     pass

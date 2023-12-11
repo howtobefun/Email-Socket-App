@@ -105,7 +105,7 @@ class SendPage(ft.UserControl):
                 attachments=", ".join(self.file.file_path)
             )
             self.page.views[-1].controls.append(
-                ft.Row([ft.Text(value="Sending successfully")], alignment=ft.MainAxisAlignment.CENTER))
+                ft.Row([ft.Text(value="Sent successfully")], alignment=ft.MainAxisAlignment.CENTER))
             self.page.update()
 
     def build(self):
