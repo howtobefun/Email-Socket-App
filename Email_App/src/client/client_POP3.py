@@ -34,14 +34,14 @@ class Client_POP3:
 
         self.msg_file = None
         self.msg_id = None
-        self.msg_path = None
+        self.msg_folder = None
 
         self.SERVER_USER_PATH = os.path.join(SERVER_MAILBOX_PATH, self.email)
         self.server_mails = None
 
         self.USERS_MAILBOX = "User_Mailbox/"
         self.USER_MAILBOX_PATH = self.USERS_MAILBOX + self.email + "/"
-        self.MAIL_RECEIVED_FOLDER = self.USER_MAILBOX_PATH + "Mail_Received/"
+        self.INBOX_FOLDER = self.USER_MAILBOX_PATH + "Inbox/"
         
 
     def show_number_of_mails(self):
@@ -65,12 +65,14 @@ class Client_POP3:
             self.__connect_with_server()
             self.__command_list()
             self.retrieve_mail()
-            self.remove_server_mailbox()
             self.end_session()
         self.remove_server_mailbox()
 
     def retrieve_mail(self, mail_number=1):
-        self.server_mails = os.listdir(self.SERVER_USER_PATH)
+        try:
+            self.server_mails = os.listdir(self.SERVER_USER_PATH)
+        except FileNotFoundError:
+            return
         self.__retrieve_mail_message(mail_number)
         self.__command_dele(mail_number)
 
@@ -90,7 +92,7 @@ class Client_POP3:
     def __transfer_mail_message_to_mailbox(self):
         self.__generate_mailbox()
 
-        with open(os.path.join(self.msg_path, self.msg_file), "w") as fp:
+        with open(os.path.join(self.msg_folder, self.msg_file), "w") as fp:
             fp.write(self.email_message.as_string())
 
     def __retrieve_attachments(self):  # Save attachments to Attachments folder, use the logic later in UI
@@ -137,7 +139,7 @@ class Client_POP3:
     def __command_retr(self, mail_number=1):
         self.msg_file = self.server_mails[mail_number - 1]
         self.msg_id = remove_extension(self.msg_file)
-        self.msg_path = os.path.join(self.MAIL_RECEIVED_FOLDER, self.msg_file)
+        self.msg_folder = os.path.join(self.INBOX_FOLDER, self.msg_id)
 
         recv = b""
         retr_command = f"RETR {mail_number}\r\n"
@@ -164,10 +166,10 @@ class Client_POP3:
             os.mkdir(self.USERS_MAILBOX)
         if not os.path.exists(self.USER_MAILBOX_PATH):
             os.mkdir(self.USER_MAILBOX_PATH)
-        if not os.path.exists(self.MAIL_RECEIVED_FOLDER):
-            os.mkdir(self.MAIL_RECEIVED_FOLDER)
-        if not os.path.exists(self.msg_path):
-            os.mkdir(self.msg_path)
+        if not os.path.exists(self.INBOX_FOLDER):
+            os.mkdir(self.INBOX_FOLDER)
+        if not os.path.exists(self.msg_folder):
+            os.mkdir(self.msg_folder)
 
     def remove_server_mailbox(self):
         if os.path.isdir(SERVER_MAILBOX_PATH + self.email):

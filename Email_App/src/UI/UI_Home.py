@@ -2,19 +2,20 @@ import flet as ft
 import os
 import shutil
 from email import message_from_string
+from Filter import *
 from UI_Send import *
 from UI_User import *
 
 def get_all_mail_header(mail_class: str):#tui thêm mail class 
     user = User()
-    USER_MAILBOX_PATH = user.pop3_client.USER_MAILBOX_PATH + mail_class + "/"
+    MAIL_CLASS_FOLDER = user.pop3_client.USER_MAILBOX_PATH + mail_class + "/"
     res_header_list = []
-    if not os.path.exists(USER_MAILBOX_PATH):
+    if not os.path.exists(MAIL_CLASS_FOLDER):
         return []
 
-    msg_folders = os.listdir(USER_MAILBOX_PATH)
+    msg_folders = os.listdir(MAIL_CLASS_FOLDER)
     for folder in msg_folders:
-        dir = USER_MAILBOX_PATH + f"{folder}/"
+        dir = MAIL_CLASS_FOLDER + f"{folder}/"
         entries = os.listdir(dir)
         files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
         for file in files:
@@ -23,7 +24,7 @@ def get_all_mail_header(mail_class: str):#tui thêm mail class
                 content = message_from_string(content)
                 res_header = [content['From'], content['Subject'], dir]
             res_header_list.append(res_header)
-
+            
     return res_header_list
 
 class InboxMailContainerComponent:
@@ -144,19 +145,19 @@ class HomePage(ft.UserControl):
     def __init__(self, page):
         super().__init__()
         self.user = User()
+        self.filter_utility = Filter() 
         self.page = page
 
         self.mail_filter = ft.Dropdown(  # lấy tên filter = self.mail_filter.value
             on_change=self.dropdown_changed,
             options=[
-                ft.dropdown.Option("Mail_Received"),
                 ft.dropdown.Option("Inbox"),
                 ft.dropdown.Option("School"),
                 ft.dropdown.Option("Work"),
                 ft.dropdown.Option("Spam"),
             ],
             width=200,
-            value="Mail_Received",
+            value="Inbox",
             autofocus=True
         )
 
@@ -205,6 +206,7 @@ class HomePage(ft.UserControl):
 
     def retrieve_all_mails_from_server(self, e):
         self.user.pop3_client.retrieve_all_mails()
+        self.filter_utility.filter_all_mails()
         self.inbox_section.inbox_section_column.clean()
         self.inbox_section.create_inbox_section()
         self.inbox_section.update()
