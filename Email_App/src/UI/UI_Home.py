@@ -140,6 +140,54 @@ class InboxSection(ft.UserControl):
             self.inbox_section_column.controls.append(inbox_mail)
         self.update()
 
+class UserInformation(ft.UserControl):
+    def __init__(self, page, user:User):
+        super().__init__()
+        self.user = user
+        self.page = page
+
+        self.user_name=ft.Text(value=self.user.pop3_client.username,weight='bold')
+        self.user_email=ft.Text(value="<"+self.user.pop3_client.email+">")
+        self.user_avatar=ft.CircleAvatar(
+                    content=ft.Text(self.get_initials(self.user.pop3_client.username)),
+                    color=ft.colors.WHITE,
+                    bgcolor=self.get_avatar_color(self.user.pop3_client.username),
+                    radius=25
+        )
+        
+    def get_initials(self, user_name: str):
+        return user_name[0].capitalize()
+
+    def get_avatar_color(self, user_name: str):
+        colors_lookup = [
+            ft.colors.AMBER,
+            ft.colors.BLUE,
+            ft.colors.BROWN,
+            ft.colors.CYAN,
+            ft.colors.GREEN,
+            ft.colors.INDIGO,
+            ft.colors.LIME,
+            ft.colors.ORANGE,
+            ft.colors.PINK,
+            ft.colors.PURPLE,
+            ft.colors.RED,
+            ft.colors.TEAL,
+            ft.colors.YELLOW,
+        ]
+        return colors_lookup[hash(user_name) % len(colors_lookup)]
+    
+    def build(self):
+        return ft.Row(
+            [
+                self.user_avatar,
+                ft.Column(
+                    [
+                        self.user_name,
+                        self.user_email
+                    ]
+                )
+            ]
+        )
 
 class HomePage(ft.UserControl):
     def __init__(self, page):
@@ -147,7 +195,8 @@ class HomePage(ft.UserControl):
         self.user = User()
         self.filter_utility = Filter() 
         self.page = page
-
+        
+        self.user_information=UserInformation(page=self.page,user=self.user)
         self.mail_filter = ft.Dropdown(  # lấy tên filter = self.mail_filter.value
             on_change=self.dropdown_changed,
             options=[
@@ -163,8 +212,6 @@ class HomePage(ft.UserControl):
 
         self.inbox_section = InboxSection(self.mail_filter.value)
 
-        self.cur_mail = self.mail_classify(self.mail_filter.value)
-
         self.compose_mail = ft.TextButton(
             text="Compose Mail",
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
@@ -179,13 +226,15 @@ class HomePage(ft.UserControl):
     def build(self):
         self.button_section = ft.Column(
             [
+                self.user_information,
                 self.mail_filter,
-                self.cur_mail,
                 self.compose_mail,
                 self.retrieve_mails,
             ],
-            alignment=ft.MainAxisAlignment.START
+            alignment=ft.MainAxisAlignment.START,
+            horizontal_alignment=ft.MainAxisAlignment.CENTER
         )
+
         return ft.Row(
             controls=[
                 self.button_section,
@@ -197,7 +246,6 @@ class HomePage(ft.UserControl):
         return ft.TextField(value="dang chon " + name)
 
     def dropdown_changed(self, e):
-        self.cur_mail.value = self.mail_classify(self.mail_filter.value).value
         self.inbox_section.change_class(self.mail_filter.value)
         self.update()
 
