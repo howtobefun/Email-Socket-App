@@ -151,14 +151,13 @@ class HomePage(ft.UserControl):
         self.mail_filter = ft.Dropdown(  # lấy tên filter = self.mail_filter.value
             on_change=self.dropdown_changed,
             options=[
-                ft.dropdown.Option("Mail_Received"),
                 ft.dropdown.Option("Inbox"),
                 ft.dropdown.Option("School"),
                 ft.dropdown.Option("Work"),
                 ft.dropdown.Option("Spam"),
             ],
             width=200,
-            value="Mail_Received",
+            value="Inbox",
             autofocus=True
         )
 
@@ -176,11 +175,6 @@ class HomePage(ft.UserControl):
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
             on_click=self.retrieve_all_mails_from_server
         )
-        self.filter_mails = ft.TextButton(
-            text="Filter All Mails",
-            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-            on_click=self.filter_all_mails
-        )
 
     def build(self):
         self.button_section = ft.Column(
@@ -189,7 +183,6 @@ class HomePage(ft.UserControl):
                 self.cur_mail,
                 self.compose_mail,
                 self.retrieve_mails,
-                self.filter_mails
             ],
             alignment=ft.MainAxisAlignment.START
         )
@@ -199,10 +192,6 @@ class HomePage(ft.UserControl):
                 self.inbox_section
             ],
         )
-    
-    def filter_all_mails(self, e):
-        self.filter_utility.filter_all_mails()
-        self.update()
 
     def mail_classify(self, name):
         return ft.TextField(value="dang chon " + name)
@@ -217,6 +206,7 @@ class HomePage(ft.UserControl):
 
     def retrieve_all_mails_from_server(self, e):
         self.user.pop3_client.retrieve_all_mails()
+        self.filter_utility.filter_all_mails()
         self.inbox_section.inbox_section_column.clean()
         self.inbox_section.create_inbox_section()
         self.inbox_section.update()
