@@ -6,4 +6,3 @@ ROOT = UI_PATH + "/../../"
 os.chdir(ROOT)
 sys.path.append('src/client')
 sys.path.append('src/UI')
- 

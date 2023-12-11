@@ -2,19 +2,20 @@ import flet as ft
 import os
 import shutil
 from email import message_from_string
+from Filter import *
 from UI_Send import *
 from UI_User import *
 
 def get_all_mail_header(mail_class: str):#tui thêm mail class 
     user = User()
-    USER_MAILBOX_PATH = user.pop3_client.USER_MAILBOX_PATH + mail_class + "/"
+    MAIL_CLASS_FOLDER = user.pop3_client.USER_MAILBOX_PATH + mail_class + "/"
     res_header_list = []
-    if not os.path.exists(USER_MAILBOX_PATH):
+    if not os.path.exists(MAIL_CLASS_FOLDER):
         return []
 
-    msg_folders = os.listdir(USER_MAILBOX_PATH)
+    msg_folders = os.listdir(MAIL_CLASS_FOLDER)
     for folder in msg_folders:
-        dir = USER_MAILBOX_PATH + f"{folder}/"
+        dir = MAIL_CLASS_FOLDER + f"{folder}/"
         entries = os.listdir(dir)
         files = [entry for entry in entries if os.path.isfile(os.path.join(dir, entry))]
         for file in files:
@@ -144,6 +145,7 @@ class HomePage(ft.UserControl):
     def __init__(self, page):
         super().__init__()
         self.user = User()
+        self.filter_utility = Filter() 
         self.page = page
 
         self.mail_filter = ft.Dropdown(  # lấy tên filter = self.mail_filter.value
@@ -174,6 +176,11 @@ class HomePage(ft.UserControl):
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
             on_click=self.retrieve_all_mails_from_server
         )
+        self.filter_mails = ft.TextButton(
+            text="Filter All Mails",
+            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
+            on_click=self.filter_all_mails
+        )
 
     def build(self):
         self.button_section = ft.Column(
@@ -182,6 +189,7 @@ class HomePage(ft.UserControl):
                 self.cur_mail,
                 self.compose_mail,
                 self.retrieve_mails,
+                self.filter_mails
             ],
             alignment=ft.MainAxisAlignment.START
         )
@@ -191,6 +199,10 @@ class HomePage(ft.UserControl):
                 self.inbox_section
             ],
         )
+    
+    def filter_all_mails(self, e):
+        self.filter_utility.filter_all_mails()
+        self.update()
 
     def mail_classify(self, name):
         return ft.TextField(value="dang chon " + name)
