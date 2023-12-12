@@ -50,7 +50,7 @@ class InboxSection(ft.UserControl):
         super().__init__()
         self.mail_class = mail_class
         self.headers = get_all_mail_header(self.mail_class)
-        self.inbox_section_column = ft.Column()
+        self.inbox_section_column = ft.Column(height=560,scroll=True)
         self.create_inbox_section()
 
     def delete_mail(self, mail_container_component: InboxMailContainerComponent):
@@ -73,17 +73,27 @@ class InboxSection(ft.UserControl):
             inbox_mail = ft.TextButton(
                 content=ft.Row(
                     [
-                        ft.TextField(
-                            value=header[0],
-                            read_only=True,
-                            label="From", border="none",
-                            width=60
+                        ft.Container(
+                            content=ft.TextField(
+                                value=header[0],
+                                read_only=True,
+                                label="From",
+                                border="none",
+                                width=50,
+                            ),
+                            width=80,
+                            on_click=mail_container_component.routing_utility.go_to_receive_page
                         ),
-                        ft.TextField(
-                            value=header[1],
-                            read_only=True,
-                            label="Subject", border="none",
-                            width=60
+                        ft.Container(
+                            content=ft.TextField(
+                                value=header[1],
+                                read_only=True,
+                                label="Subject", 
+                                border="none",
+                                width=50,
+                            ),
+                            width=260,
+                            on_click=mail_container_component.routing_utility.go_to_receive_page
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
@@ -91,7 +101,7 @@ class InboxSection(ft.UserControl):
                         )
                     ],
                 ),
-                style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
+                style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10),bgcolor=ft.colors.BLUE_50),
                 key=header[2],  # path to mail
                 on_click=mail_container_component.routing_utility.go_to_receive_page
             )
@@ -115,17 +125,27 @@ class InboxSection(ft.UserControl):
             inbox_mail = ft.TextButton(
                 content=ft.Row(
                     [
-                        ft.TextField(
-                            value=header[0],
-                            read_only=True,
-                            label="From", border="none",
-                            width=60
+                        ft.Container(
+                            content=ft.TextField(
+                                value=header[0],
+                                read_only=True,
+                                label="From",
+                                border="none",
+                                width=50,
+                            ),
+                            width=80,
+                            on_click=mail_container_component.routing_utility.go_to_receive_page
                         ),
-                        ft.TextField(
-                            value=header[1],
-                            read_only=True,
-                            label="Subject", border="none",
-                            width=60
+                        ft.Container(
+                            content=ft.TextField(
+                                value=header[1],
+                                read_only=True,
+                                label="Subject", 
+                                border="none",
+                                width=50,
+                            ),
+                            width=260,
+                            on_click=mail_container_component.routing_utility.go_to_receive_page
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
@@ -133,13 +153,61 @@ class InboxSection(ft.UserControl):
                         )
                     ],
                 ),
-                style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
+                style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10),bgcolor=ft.colors.BLUE_50),
                 key=header[2],  # path to mail
-                on_click=mail_container_component.routing_utility.go_to_receive_page
+                on_click=mail_container_component.routing_utility.go_to_receive_page,
             )
             self.inbox_section_column.controls.append(inbox_mail)
         self.update()
 
+class UserInformation(ft.UserControl):
+    def __init__(self, page, user:User):
+        super().__init__()
+        self.user = user
+        self.page = page
+
+        self.user_name=ft.Text(value=self.user.pop3_client.username,weight='bold')
+        self.user_email=ft.Text(value="<"+self.user.pop3_client.email+">")
+        self.user_avatar=ft.CircleAvatar(
+                    content=ft.Text(self.get_first_character_upper_case(self.user_name.value)),
+                    color=ft.colors.WHITE,
+                    bgcolor=self.get_avatar_color(self.user_name.value),
+                    radius=25
+        )
+        
+    def get_first_character_upper_case(self, name: str):
+        return name[0].capitalize()
+
+    def get_avatar_color(self, name: str):
+        colors_lookup = [
+            ft.colors.AMBER,
+            ft.colors.BLUE,
+            ft.colors.BROWN,
+            ft.colors.CYAN,
+            ft.colors.GREEN,
+            ft.colors.INDIGO,
+            ft.colors.LIME,
+            ft.colors.ORANGE,
+            ft.colors.PINK,
+            ft.colors.PURPLE,
+            ft.colors.RED,
+            ft.colors.TEAL,
+            ft.colors.YELLOW,
+        ]
+        return colors_lookup[ord(name[0]) % len(colors_lookup)]
+    
+    def build(self):
+        return ft.Row(
+            [
+                self.user_avatar,
+                ft.Column(
+                    [
+                        self.user_name,
+                        self.user_email
+                    ]
+                )
+            ]
+        )
 
 class HomePage(ft.UserControl):
     def __init__(self, page):
@@ -147,7 +215,8 @@ class HomePage(ft.UserControl):
         self.user = User()
         self.filter_utility = Filter() 
         self.page = page
-
+        
+        self.user_information=UserInformation(page=self.page,user=self.user)
         self.mail_filter = ft.Dropdown(  # lấy tên filter = self.mail_filter.value
             on_change=self.dropdown_changed,
             options=[
@@ -163,8 +232,6 @@ class HomePage(ft.UserControl):
 
         self.inbox_section = InboxSection(self.mail_filter.value)
 
-        self.cur_mail = self.mail_classify(self.mail_filter.value)
-
         self.compose_mail = ft.TextButton(
             text="Compose Mail",
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
@@ -177,27 +244,38 @@ class HomePage(ft.UserControl):
         )
 
     def build(self):
-        self.button_section = ft.Column(
-            [
-                self.mail_filter,
-                self.cur_mail,
-                self.compose_mail,
-                self.retrieve_mails,
-            ],
-            alignment=ft.MainAxisAlignment.START
+        self.button_and_avatar_container =  ft.Container(
+            content=ft.Column(
+                controls=[
+                    self.user_information,
+                    self.mail_filter,
+                    self.compose_mail,
+                    self.retrieve_mails,
+                ]
+            ),
+            alignment=ft.alignment.top_left,
+            padding=ft.padding.only(top=20,left=9),
+            border_radius=10,
+            height=560,
+            width=220,
+            bgcolor=ft.colors.WHITE,
+            border=ft.border.only(right=ft.border.BorderSide(1, ft.colors.BLACK))
+
         )
+
         return ft.Row(
             controls=[
-                self.button_section,
+                self.button_and_avatar_container,
+                ft.Text(value="",width=50),# a gap between 2 obj
                 self.inbox_section
             ],
+            alignment=ft.MainAxisAlignment.START,
         )
 
     def mail_classify(self, name):
         return ft.TextField(value="dang chon " + name)
 
     def dropdown_changed(self, e):
-        self.cur_mail.value = self.mail_classify(self.mail_filter.value).value
         self.inbox_section.change_class(self.mail_filter.value)
         self.update()
 
