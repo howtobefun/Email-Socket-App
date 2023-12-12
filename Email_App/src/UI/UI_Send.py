@@ -85,9 +85,9 @@ class SendPage(ft.UserControl):
         self.user = User()
         self.page = page
 
-        self.to = ft.TextField(label="To", height=40, width=500)
-        self.cc = ft.TextField(label="Cc", height=40, width=500)
-        self.bcc = ft.TextField(label="Bcc", height=40, width=500)
+        self.to = ft.TextField(label="To", height=40)
+        self.cc = ft.TextField(label="Cc", height=40)
+        self.bcc = ft.TextField(label="Bcc", height=40)
         self.subject = ft.TextField(label="Subject", height=40)
         self.content = ft.TextField(label="Content", min_lines=8, multiline=True, height=220)
         self.send_button = ft.ElevatedButton(text="Send", on_click=self.send)
