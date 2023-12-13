@@ -11,7 +11,6 @@ def main_page(page: ft.Page):
         page.window_width = 800
         page.window_height = 700
         page.scroll = True
-        page.theme_mode = ft.ThemeMode.LIGHT
 
     # To change the page, use page.go()
     # To add obj to the page, use page.views[-1].controls.append()
