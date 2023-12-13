@@ -95,6 +95,13 @@ class Client_POP3:
         with open(os.path.join(self.msg_folder, self.msg_file), "w") as fp:
             fp.write(self.email_message.as_string())
 
+        sender = self.email_message['From']
+        if not os.path.exists(os.path.join(self.USER_MAILBOX_PATH, sender)):
+            os.mkdir(os.path.join(self.USER_MAILBOX_PATH, sender))
+        if not os.path.exists(os.path.join(self.USER_MAILBOX_PATH, f"{sender}/{self.msg_id}")):
+            os.mkdir(os.path.join(self.USER_MAILBOX_PATH, f"{sender}/{self.msg_id}"))
+        shutil.copy(os.path.join(self.msg_folder, self.msg_file), os.path.join(self.USER_MAILBOX_PATH, f"{sender}/{self.msg_id}/{self.msg_file}"))
+
     def __retrieve_attachments(self):  # Save attachments to Attachments folder, use the logic later in UI
         if self.email_message.is_multipart():
             for part in self.email_message.walk():
