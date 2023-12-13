@@ -52,9 +52,9 @@ class InboxSection(ft.UserControl):
         self.mail_class = mail_class
         self.headers = get_all_mail_header(self.mail_class)
         self.inbox_section_column = ft.Column(height=560,scroll=True)
-        self.create_inbox_section()
         self.read_status_handler = ReadStatusHandling(User().pop3_client.email)
         self.read_status_data = self.read_status_handler.get_read_status()
+        self.create_inbox_section()
 
     def delete_mail(self, mail_container_component: InboxMailContainerComponent):
         control_to_delete = self.find_control_by_path(mail_container_component.header[2])
@@ -66,18 +66,30 @@ class InboxSection(ft.UserControl):
         del mail_container_component
         self.update()
 
+    def update_color(self, path: str):
+        control_to_update = self.find_control_by_path(path)
+        if control_to_update is None:
+            return
+        
+        control_to_update.content.controls[2].icon_color = None
+
+
     def check_receive_mail(self, path: str):
         self.read_status_data[path.split('/')[-2] + '.msg'] = True
+        self.update_color(path)
         self.read_status_handler.write_read_status(self.read_status_data)
+        self.update()
         self.page.go(f"/Receive, {path}")
 
     def create_inbox_section(self):
         self.headers = get_all_mail_header(self.mail_class)
         for header in self.headers:
             mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail)
+            file_name = header[2].split('/')[-2] + '.msg'
+            icon_color = ft.colors.RED if self.read_status_data[file_name] else None
             inbox_mail = ft.Container(
                 content=ft.Row(
-                    [
+                    controls= [
                         ft.TextField(
                             value=header[0],
                             read_only=True,
@@ -93,7 +105,8 @@ class InboxSection(ft.UserControl):
                             width=260,
                         ),
                         ft.IconButton(
-                            ft.icons.MARK_AS_UNREAD_OUTLINED
+                            ft.icons.MARK_AS_UNREAD_OUTLINED,
+                            icon_color= icon_color
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
