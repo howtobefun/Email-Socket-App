@@ -7,6 +7,12 @@ from UI_Send import *
 from UI_User import *
 from read_status_handling import *
 
+def extract_file_name_from_path(path: str):
+    return path.split('/')[-2] + '.msg'
+
+def extract_ID_from_file_name(file_name: str):
+    return file_name.split('.')[0]
+
 def get_all_mail_header(mail_class: str):#tui thêm mail class 
     user = User()
     MAIL_CLASS_FOLDER = user.pop3_client.USER_MAILBOX_PATH + mail_class + "/"
@@ -64,7 +70,25 @@ class InboxSection(ft.UserControl):
         control_to_delete = self.find_control_by_path(mail_container_component.header[2])
         if control_to_delete is None:
             return
-        shutil.rmtree(mail_container_component.header[2])
+        
+        file_name = extract_file_name_from_path(mail_container_component.header[2])
+        ID = extract_ID_from_file_name(file_name)
+        USER_MAILBOX_PATH = User().pop3_client.USER_MAILBOX_PATH
+
+        dirs = os.listdir(USER_MAILBOX_PATH)
+        for dir in dirs: # delete all msg with same ID
+            if (dir == "Attachments") | os.path.isfile(os.path.join(USER_MAILBOX_PATH, dir)):
+                continue
+            IDs = os.listdir(USER_MAILBOX_PATH + dir)
+            if ID in IDs:
+                shutil.rmtree(USER_MAILBOX_PATH + dir + "/" + ID)
+                continue
+        
+        try:
+            os.rmdir(USER_MAILBOX_PATH + self.mail_class)
+        except:
+            pass
+
         self.headers.remove(mail_container_component.header)
         self.inbox_section_column.controls.remove(control_to_delete)
         del mail_container_component
@@ -82,12 +106,12 @@ class InboxSection(ft.UserControl):
         if control_to_update is None:
             return
         control_to_update.content.controls[2].icon_color = ft.colors.RED
-        self.read_status_data[mail_container_component.header[2].split('/')[-2] + '.msg'] = False
+        self.read_status_data[extract_file_name_from_path(mail_container_component.header[2])] = False
         self.update()
         self.read_status_handler.write_read_status(self.read_status_data)
 
     def check_receive_mail(self, path: str):
-        self.read_status_data[path.split('/')[-2] + '.msg'] = True
+        self.read_status_data[extract_file_name_from_path(path)] = True
         self.update_color(path)
         self.read_status_handler.write_read_status(self.read_status_data)
         self.update()
@@ -97,7 +121,7 @@ class InboxSection(ft.UserControl):
         self.headers = get_all_mail_header(self.mail_class)
         for header in self.headers:
             mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail, self.unread_mail)
-            file_name = header[2].split('/')[-2] + '.msg'
+            file_name = extract_file_name_from_path(header[2])
             icon_color = ft.colors.RED if not self.read_status_data.get(file_name) else None
             inbox_mail = ft.TextButton(
                 content=ft.Row(
