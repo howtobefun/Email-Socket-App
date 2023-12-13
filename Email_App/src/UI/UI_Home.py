@@ -87,7 +87,7 @@ class InboxSection(ft.UserControl):
             mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail)
             file_name = header[2].split('/')[-2] + '.msg'
             icon_color = ft.colors.RED if not self.read_status_data.get(file_name) else None
-            inbox_mail = ft.Container(
+            inbox_mail = ft.TextButton(
                 content=ft.Row(
                     controls= [
                         ft.TextField(
@@ -106,10 +106,12 @@ class InboxSection(ft.UserControl):
                         ),
                         ft.IconButton(
                             ft.icons.MARK_AS_UNREAD_OUTLINED,
+                            icon_size=35,
                             icon_color= icon_color
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
+                            icon_size=35,
                             on_click=mail_container_component.remove_mail_from_list
                         )
                     ],
