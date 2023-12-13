@@ -1,0 +1,5 @@
+{
+    "school_word_list": ["educational","education","study", "learn", "student","university","degree","learning"],
+    "work_word_list": ["job","money","work","employment","employee","schedule","career","business","hire"],
+    "spam_word_list": ["free", "click", "open", "earn", "income", "cash", "credit", "cheap", "congratulations", "prize", "risk-free", "money", "guarantee", "save", "weight", "lose", "weight", "billion", "million", "dollars", "bonus", "income", "earn", "extra", "cash", "money", "win", "winnings", "jackpot"]
+}
