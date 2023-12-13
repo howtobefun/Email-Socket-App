@@ -11,10 +11,13 @@ class ReadStatusHandling:
         self.data = {}
 
         if not os.path.exists(self.read_status_file_path):
-            self.create_read_status_file()
+            self.__create_read_status_file()
         else:
             with open(self.read_status_file_path, 'r') as fp:
                 self.data = json.load(fp)
+
+    def get_read_status(self):
+        return self.data
 
     def __generate_data(self):
         data = {}
@@ -24,7 +27,7 @@ class ReadStatusHandling:
             return data
         
         for dir in dirs:
-            if os.path.isfile(self.USER_MAILBOX_PATH + dir) | dir == 'Attachments':  
+            if os.path.isfile(self.USER_MAILBOX_PATH + dir) | (dir == 'Attachments'):  
                 continue
             msg_folders = os.listdir(self.USER_MAILBOX_PATH + dir)
             for msg_folder in msg_folders:
@@ -33,8 +36,12 @@ class ReadStatusHandling:
                     data[msg_file] = False
 
         return data
+    
+    def write_read_status(self, data: dict):
+        with open(self.read_status_file_path, 'w') as fp:
+            json.dump(data, fp)
 
-    def create_read_status_file(self):
+    def __create_read_status_file(self):
         self.data = self.__generate_data()
         with open(self.read_status_file_path, 'w') as fp:
             json.dump(self.data, fp)
