@@ -90,49 +90,46 @@ class InboxSection(ft.UserControl):
             inbox_mail = ft.TextButton(
                 content=ft.Row(
                     controls= [
-                        ft.TextField(
-                            value=header[0],
-                            read_only=True,
-                            label="From",
-                            border="none",
+                        ft.Container(  
+                            content=ft.TextField(
+                                value=header[0],
+                                read_only=True,
+                                label="From",
+                                border="none",
+                                width=50,
+                            ),
                             width=80,
+                            on_click=mail_container_component.routing_utility.go_to_receive_page
                         ),
-                        ft.TextField(
-                            value=header[1],
-                            read_only=True,
-                            label="Subject", 
-                            border="none",
-                            width=260,
+                        ft.Container(  
+                            content=ft.TextField(
+                                value=header[1],
+                                read_only=True,
+                                label="Subject", 
+                                border="none",
+                                width=50,
+                            ),
+                            width=230,
+                            on_click=mail_container_component.routing_utility.go_to_receive_page,
                         ),
                         ft.IconButton(
                             ft.icons.MARK_AS_UNREAD_OUTLINED,
-                            icon_size=35,
                             icon_color= icon_color
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
-                            icon_size=35,
                             on_click=mail_container_component.remove_mail_from_list
                         )
                     ],
                 ),
-                bgcolor=ft.colors.BLUE_50,
-                border_radius=10,
                 key=header[2],  # path to mail
                 on_click=mail_container_component.routing_utility.go_to_receive_page,
-                on_hover=self.mouse_on_hover
+                style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10),bgcolor=ft.colors.BLUE_50),
             )
             self.inbox_section_column.controls.append(inbox_mail)
 
     def build(self):
         return self.inbox_section_column
-
-    def mouse_on_hover(self,e):
-        if e.data == "true":
-            e.control.bgcolor = ft.colors.BLUE_GREY_100
-        else:
-            e.control.bgcolor = ft.colors.BLUE_50
-        e.control.update() 
 
     def find_control_by_path(self, path: str):
         for control in self.inbox_section_column.controls:
