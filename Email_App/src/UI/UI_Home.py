@@ -86,7 +86,7 @@ class InboxSection(ft.UserControl):
         for header in self.headers:
             mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail)
             file_name = header[2].split('/')[-2] + '.msg'
-            icon_color = ft.colors.RED if self.read_status_data[file_name] else None
+            icon_color = ft.colors.RED if not self.read_status_data.get(file_name) else None
             inbox_mail = ft.Container(
                 content=ft.Row(
                     controls= [

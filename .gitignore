@@ -53,3 +53,5 @@ l10n/
 # read status file
 read_status.json
 
+# User_Mailbox
+User_Mailbox/

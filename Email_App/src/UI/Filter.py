@@ -1,6 +1,7 @@
 import re
 import os
 import shutil
+import json
 from UI_User import *
 from email import message_from_file
 
@@ -9,6 +10,17 @@ class Filter:
         user = User()
         self.USER_MAILBOX_PATH = user.pop3_client.USER_MAILBOX_PATH
         self.INBOX_FOLDER = user.pop3_client.INBOX_FOLDER
+        self.config_data = self.load_config()
+        self.school_word_list = self.config_data['school_word_list']
+        self.work_word_list = self.config_data['work_word_list']
+        self.spam_word_list = self.config_data['spam_word_list']
+
+    def load_config(self):
+        config_file_path = 'src/config/filter_config.json'
+        with open(config_file_path, 'r') as fp:
+            config_data = json.load(fp)
+
+        return config_data
 
     def __extract_words_and_save(self, input_string):
         words = re.split(',|\.|;|\s|\[|\]', input_string)
@@ -17,15 +29,11 @@ class Filter:
     def __get_filter(self,string_mail_subject,string_mail_body):
         words_in_subject=self.__extract_words_and_save(string_mail_subject)
         words_in_body=self.__extract_words_and_save(string_mail_body)
-
-        school_word_list = ['educational','education','study', 'learn', 'student','university','degree','learning']
-        work_word_list=['job','money','work','employment','employee','schedule','career','business','hire']
-        spam_word_list = ['free', 'click', 'open', 'earn', 'income', 'cash', 'credit', 'cheap', 'congratulations', 'prize', 'risk-free', 'money', 'guarantee', 'save', 'weight', 'lose', 'weight', 'billion', 'million', 'dollars', 'bonus', 'income', 'earn', 'extra', 'cash', 'money', 'win', 'winnings', 'jackpot']
         
         category_word_lists = {
-            'School': school_word_list,
-            'Work': work_word_list,
-            'Spam': spam_word_list
+            'School': self.school_word_list,
+            'Work': self.work_word_list,
+            'Spam': self.spam_word_list
         }
 
         for category, word_list in category_word_lists.items():
@@ -51,9 +59,9 @@ class Filter:
                 complete_path = self.INBOX_FOLDER + msg_folder + '/' + msg_file
                 with open(complete_path, "r") as fp:
                     mail_message = message_from_file(fp)
-                    string_mail_subject = mail_message['Subject']
-                    string_mail_body = self.__get_mail_body(complete_path)
-                    self.__filter_mail(msg_folder,msg_file, string_mail_subject, string_mail_body)
+                string_mail_subject = mail_message['Subject']
+                string_mail_body = self.__get_mail_body(complete_path)
+                self.__filter_mail(msg_folder,msg_file, string_mail_subject, string_mail_body)
 
     def __filter_mail(self,msg_folder,msg_file, string_mail_subject, string_mail_body):
         folder_type=self.__get_filter(string_mail_subject, string_mail_body)
@@ -72,3 +80,8 @@ class Filter:
             os.mkdir(mail_class_path + msg_folder)
         
         shutil.move(source_file, destination_file)
+
+        # try:
+        #     shutil.move(source_file, destination_file)
+        # except PermissionError:
+        #     pass
