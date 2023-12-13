@@ -15,7 +15,7 @@ class PickFileSystem(ft.UserControl):
         super().__init__()
         self.page = page
         self.file_picker = ft.FilePicker(on_result=self.add_file)
-        self.file_bar = ft.Row()
+        self.file_bar = ft.Row(scroll=True)
         self.file_path = []
 
     def build(self):
