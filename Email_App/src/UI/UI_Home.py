@@ -29,14 +29,18 @@ def get_all_mail_header(mail_class: str):#tui thêm mail class
     return res_header_list
 
 class InboxMailContainerComponent:
-    def __init__(self, header: list, delete_mail: callable, check_receive_mail: callable):
+    def __init__(self, header: list, delete_mail: callable, check_receive_mail: callable, unread_mail: callable):
         super().__init__()
         self.header = header
         self.delete_mail = delete_mail
         self.routing_utility = RoutingUtility(self.header[2], check_receive_mail)
+        self.unread_mail = unread_mail
 
     def remove_mail_from_list(self, e):
         self.delete_mail(self)
+
+    def unread(self, e):
+        self.unread_mail(self)
 
 class RoutingUtility:
     def __init__(self, path: str, go: callable):
@@ -73,6 +77,14 @@ class InboxSection(ft.UserControl):
         
         control_to_update.content.controls[2].icon_color = None
 
+    def unread_mail(self, mail_container_component: InboxMailContainerComponent):
+        control_to_update = self.find_control_by_path(mail_container_component.header[2])
+        if control_to_update is None:
+            return
+        control_to_update.content.controls[2].icon_color = ft.colors.RED
+        self.read_status_data[mail_container_component.header[2].split('/')[-2] + '.msg'] = False
+        self.update()
+        self.read_status_handler.write_read_status(self.read_status_data)
 
     def check_receive_mail(self, path: str):
         self.read_status_data[path.split('/')[-2] + '.msg'] = True
@@ -84,7 +96,7 @@ class InboxSection(ft.UserControl):
     def create_inbox_section(self):
         self.headers = get_all_mail_header(self.mail_class)
         for header in self.headers:
-            mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail)
+            mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail, self.unread_mail)
             file_name = header[2].split('/')[-2] + '.msg'
             icon_color = ft.colors.RED if not self.read_status_data.get(file_name) else None
             inbox_mail = ft.TextButton(
@@ -114,7 +126,8 @@ class InboxSection(ft.UserControl):
                         ),
                         ft.IconButton(
                             ft.icons.MARK_AS_UNREAD_OUTLINED,
-                            icon_color= icon_color
+                            icon_color= icon_color,
+                            on_click=mail_container_component.unread
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
