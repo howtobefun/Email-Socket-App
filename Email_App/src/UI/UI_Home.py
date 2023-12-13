@@ -179,7 +179,7 @@ class InboxSection(ft.UserControl):
         self.mail_class=class_change
         self.headers = get_all_mail_header(self.mail_class)
         for header in self.headers:
-            mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail)
+            mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail, self.unread_mail)
             file_name = header[2].split('/')[-2] + '.msg'
             icon_color = ft.colors.RED if not self.read_status_data.get(file_name) else None
             inbox_mail = ft.TextButton(
@@ -279,7 +279,11 @@ class HomePage(ft.UserControl):
         self.user = User()
         self.filter_utility = Filter() 
         self.page = page
-        
+
+        self.option_textbox = ft.TextField(hint_text="Enter sender's name")
+        self.add_option = ft.ElevatedButton("Add Filter", on_click=self.add_option_filter)
+        self.delete_option = ft.OutlinedButton("Delete Filter", on_click=self.delete_option_filter)
+
         self.user_information=UserInformation(page=self.page,user=self.user)
         self.mail_filter = ft.Dropdown(  # lấy tên filter = self.mail_filter.value
             on_change=self.dropdown_changed,
@@ -313,6 +317,11 @@ class HomePage(ft.UserControl):
                 controls=[
                     self.user_information,
                     self.mail_filter,
+
+                    self.option_textbox,
+                    self.add_option,
+                    self.delete_option,
+                    
                     self.compose_mail,
                     self.retrieve_mails,
                 ]
@@ -336,12 +345,30 @@ class HomePage(ft.UserControl):
             alignment=ft.MainAxisAlignment.START,
         )
 
-    def mail_classify(self, name):
-        return ft.TextField(value="dang chon " + name)
 
     def dropdown_changed(self, e):
         self.inbox_section.change_class(self.mail_filter.value)
         self.update()
+    
+    def find_option_filter(self,option_name):
+        for option in self.mail_filter.options:
+            if option_name == option.key:
+                return option
+        return None
+
+    def add_option_filter(self,e):
+        self.mail_filter.options.append(ft.dropdown.Option(self.option_textbox.value))
+        self.option_textbox.value = ""
+        self.mail_filter.update()
+        self.option_textbox.update()
+
+    def delete_option_filter(self,e):
+        option = self.find_option_filter(self.mail_filter.value)
+        if option != None and option.key!="Inbox"and option.key!="School"and option.key!="Work"and option.key!="Spam":
+            self.mail_filter.options.remove(option)
+            self.mail_filter.value = ""
+            self.mail_filter.update()
+
 
     def compose_new_mail(self, e):
         self.page.go("/Compose")
