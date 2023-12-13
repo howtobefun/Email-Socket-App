@@ -10,6 +10,8 @@ class Filter:
         user = User()
         self.USER_MAILBOX_PATH = user.pop3_client.USER_MAILBOX_PATH
         self.INBOX_FOLDER = user.pop3_client.INBOX_FOLDER
+        if not os.path.exists(self.INBOX_FOLDER):
+            os.mkdir(self.INBOX_FOLDER)
         self.config_data = self.load_config()
         self.school_word_list = self.config_data['school_word_list']
         self.work_word_list = self.config_data['work_word_list']
