@@ -5,6 +5,7 @@ from email import message_from_string
 from Filter import *
 from UI_Send import *
 from UI_User import *
+from read_status_handling import *
 
 def get_all_mail_header(mail_class: str):#tui thêm mail class 
     user = User()
@@ -52,6 +53,8 @@ class InboxSection(ft.UserControl):
         self.headers = get_all_mail_header(self.mail_class)
         self.inbox_section_column = ft.Column(height=560,scroll=True)
         self.create_inbox_section()
+        self.read_status_handler = ReadStatusHandling(User().pop3_client.email)
+        self.read_status_data = self.read_status_handler.get_read_status()
 
     def delete_mail(self, mail_container_component: InboxMailContainerComponent):
         control_to_delete = self.find_control_by_path(mail_container_component.header[2])
@@ -64,6 +67,8 @@ class InboxSection(ft.UserControl):
         self.update()
 
     def check_receive_mail(self, path: str):
+        self.read_status_data[path.split('/')[-2] + '.msg'] = True
+        self.read_status_handler.write_read_status(self.read_status_data)
         self.page.go(f"/Receive, {path}")
 
     def create_inbox_section(self):
