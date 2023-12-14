@@ -24,7 +24,8 @@ class ReceivePage(ft.UserControl):
         self.file = ft.Text(value="Received file:")
         self.content = ft.TextField(label="Content", min_lines=8, multiline=True, height=250, value=content,
                                     read_only=True)
-        self.download_button = ft.IconButton(ft.icons.DOWNLOAD_ROUNDED, tooltip="Download Mail", on_click=self.download)
+        self.download_button = ft.IconButton(ft.icons.DOWNLOAD_ROUNDED, tooltip="Download Attacchments", on_click=self.download)
+        self.update_attachments()
 
     def download(self, e):
         self.__download_all_attachments()
@@ -79,6 +80,13 @@ class ReceivePage(ft.UserControl):
                 with open(complete_path, 'wb') as fp:
                     fp.write(part.get_payload(decode=True))
     
+    def update_attachments(self):
+        for part in self.msg.walk():
+            if part.get_content_type() == 'application/octet-stream':
+                self.file.value += f" \"{part.get_filename()}\""
+        self.update()
+
+
     def show_announcement(self, announcement: str):
         announce_dialog = ft.AlertDialog(
             content=ft.Text(value=announcement),
