@@ -13,7 +13,7 @@ def extract_file_name_from_path(path: str):
 def extract_ID_from_file_name(file_name: str):
     return file_name.split('.')[0]
 
-def get_all_mail_header(mail_class: str):#tui thêm mail class 
+def get_all_mail_header(mail_class: str):
     user = User()
     MAIL_CLASS_FOLDER = user.pop3_client.USER_MAILBOX_PATH + mail_class + "/"
     res_header_list = []
@@ -174,13 +174,13 @@ class InboxSection(ft.UserControl):
                 return control
         return None
 
-    def change_class(self, class_change: str):  # hàm đổi inbox section, tui đang ko biết có nên gộp 2 hàm change_class với create_inbox_section lại làm 1 ko
+    def change_class(self, class_change: str):  
         self.inbox_section_column.controls.clear()
         self.mail_class=class_change
         self.headers = get_all_mail_header(self.mail_class)
         for header in self.headers:
             mail_container_component = InboxMailContainerComponent(header, self.delete_mail, self.check_receive_mail, self.unread_mail)
-            file_name = header[2].split('/')[-2] + '.msg'
+            file_name = extract_file_name_from_path(header[2])
             icon_color = ft.colors.RED if not self.read_status_data.get(file_name) else None
             inbox_mail = ft.TextButton(
                 content=ft.Row(
@@ -284,18 +284,21 @@ class HomePage(ft.UserControl):
         self.filter_utility = Filter() 
         self.page = page
 
+        self.option_list = ["Inbox", "School", "Work", "Spam", "Others"]
+
         self.option_textbox = ft.TextField(hint_text="Enter sender's name")
         self.add_option = ft.ElevatedButton("Add Filter", on_click=self.add_option_filter)
         self.delete_option = ft.OutlinedButton("Delete Filter", on_click=self.delete_option_filter)
 
         self.user_information=UserInformation(page=self.page,user=self.user)
-        self.mail_filter = ft.Dropdown(  # lấy tên filter = self.mail_filter.value
+        self.mail_filter = ft.Dropdown(  
             on_change=self.dropdown_changed,
             options=[
                 ft.dropdown.Option("Inbox"),
                 ft.dropdown.Option("School"),
                 ft.dropdown.Option("Work"),
                 ft.dropdown.Option("Spam"),
+                ft.dropdown.Option("Others"),
             ],
             width=200,
             value="Inbox",
@@ -343,7 +346,7 @@ class HomePage(ft.UserControl):
         return ft.Row(
             controls=[
                 self.button_and_avatar_container,
-                ft.Text(value="",width=50),# a gap between 2 obj
+                ft.Text(value="",width=50),
                 self.inbox_section
             ],
             alignment=ft.MainAxisAlignment.START,
@@ -361,6 +364,8 @@ class HomePage(ft.UserControl):
         return None
 
     def add_option_filter(self,e):
+        if self.option_textbox.value == "":
+            return
         self.mail_filter.options.append(ft.dropdown.Option(self.option_textbox.value))
         self.option_textbox.value = ""
         self.mail_filter.update()
@@ -368,7 +373,7 @@ class HomePage(ft.UserControl):
 
     def delete_option_filter(self,e):
         option = self.find_option_filter(self.mail_filter.value)
-        if option != None and option.key!="Inbox"and option.key!="School"and option.key!="Work"and option.key!="Spam":
+        if option != None and (option.key not in self.option_list):
             self.mail_filter.options.remove(option)
             self.mail_filter.value = ""
             self.mail_filter.update()

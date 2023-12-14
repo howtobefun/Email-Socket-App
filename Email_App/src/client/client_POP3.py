@@ -102,20 +102,6 @@ class Client_POP3:
             os.mkdir(os.path.join(self.USER_MAILBOX_PATH, f"{sender}/{self.msg_id}"))
         shutil.copy(os.path.join(self.msg_folder, self.msg_file), os.path.join(self.USER_MAILBOX_PATH, f"{sender}/{self.msg_id}/{self.msg_file}"))
 
-    def __retrieve_attachments(self):  # Save attachments to Attachments folder, use the logic later in UI
-        if self.email_message.is_multipart():
-            for part in self.email_message.walk():
-                if part.get_content_type() == 'text/plain':
-                    continue
-                if part.get_content_type() == 'application/octet-stream':
-                    attachments_folder = os.path.join(self.USER_MAILBOX_PATH, "Attachments")
-                    if not os.path.exists(attachments_folder):
-                        os.mkdir(attachments_folder)
-                    complete_path = os.path.join(attachments_folder, part.get_filename())
-                    if not os.path.isdir(complete_path):
-                        with open(complete_path, 'wb') as fp:
-                            fp.write(part.get_payload(decode=True))
-
     def end_session(self):
         self.__command_quit()
 

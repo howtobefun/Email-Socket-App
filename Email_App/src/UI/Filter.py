@@ -44,7 +44,7 @@ class Filter:
             if any(word.lower() in words_in_body for word in word_list):
                 return category
         
-        return None
+        return "Others"
 
     def __get_mail_body(self, complete_path):
         string_mail_body = ""
@@ -68,9 +68,6 @@ class Filter:
     def __filter_mail(self,msg_folder,msg_file, string_mail_subject, string_mail_body):
         folder_type=self.__get_filter(string_mail_subject, string_mail_body)
 
-        if folder_type is None:
-            return
-
         folder_type = folder_type + '/'
         mail_class_path = self.USER_MAILBOX_PATH + folder_type + '/'
         source_file = self.INBOX_FOLDER + msg_folder + '/' + msg_file
@@ -81,9 +78,4 @@ class Filter:
         if not os.path.exists(mail_class_path + msg_folder):
             os.mkdir(mail_class_path + msg_folder)
         
-        shutil.move(source_file, destination_file)
-
-        # try:
-        #     shutil.move(source_file, destination_file)
-        # except PermissionError:
-        #     pass
+        shutil.copy(source_file, destination_file)
