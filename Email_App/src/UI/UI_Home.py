@@ -217,12 +217,12 @@ class InboxSection(ft.UserControl):
                         ft.IconButton(
                             ft.icons.MARK_AS_UNREAD_OUTLINED,
                             icon_color= icon_color,
-                            on_click=mail_container_component.unread
+                            on_click=mail_container_component.unread,
                             tooltip="Set unread"
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
-                            on_click=mail_container_component.remove_mail_from_list
+                            on_click=mail_container_component.remove_mail_from_list,
                             tooltip="Delete mail"
                         )
                     ],
