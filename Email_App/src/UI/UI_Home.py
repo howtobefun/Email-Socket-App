@@ -151,11 +151,13 @@ class InboxSection(ft.UserControl):
                         ft.IconButton(
                             ft.icons.MARK_AS_UNREAD_OUTLINED,
                             icon_color= icon_color,
-                            on_click=mail_container_component.unread
+                            on_click=mail_container_component.unread,
+                            tooltip="Set unread"
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
-                            on_click=mail_container_component.remove_mail_from_list
+                            on_click=mail_container_component.remove_mail_from_list,
+                            tooltip="Delete mail"
                         )
                     ],
                 ),
@@ -286,9 +288,9 @@ class HomePage(ft.UserControl):
 
         self.option_list = ["Inbox", "School", "Work", "Spam", "Others"]
 
-        self.option_textbox = ft.TextField(hint_text="Enter sender's name")
-        self.add_option = ft.ElevatedButton("Add Filter", on_click=self.add_option_filter)
-        self.delete_option = ft.OutlinedButton("Del", on_click=self.delete_option_filter)
+        self.option_textbox = ft.TextField(hint_text="Sender's name", width=150)
+        self.add_option = ft.ElevatedButton("Add", on_click=self.add_option_filter,style=ft.ButtonStyle(shape=ft.CircleBorder(), padding=20),tooltip="Add filter")
+        self.delete_option = ft.ElevatedButton("Del", on_click=self.delete_option_filter,style=ft.ButtonStyle(shape=ft.CircleBorder(), padding=20),tooltip="Delete filter")
 
         self.user_information=UserInformation(page=self.page,user=self.user)
         self.mail_filter = ft.Dropdown(  
@@ -329,9 +331,9 @@ class HomePage(ft.UserControl):
                     ]),
                     ft.Row([
                         self.option_textbox,
-                        
+                        self.add_option
                     ]),
-                    self.add_option,
+                  
                     self.compose_mail,
                     self.retrieve_mails,
                 ]
@@ -340,7 +342,7 @@ class HomePage(ft.UserControl):
             padding=ft.padding.only(top=20,left=9),
             border_radius=10,
             height=580,
-            width=220,
+            width=240,
             bgcolor=ft.colors.WHITE,
             border=ft.border.only(right=ft.border.BorderSide(1, ft.colors.BLACK))
 
@@ -349,7 +351,7 @@ class HomePage(ft.UserControl):
         return ft.Row(
             controls=[
                 self.button_and_avatar_container,
-                ft.Text(value="",width=50),
+                ft.Text(value="",width=30),
                 self.inbox_section
             ],
             alignment=ft.MainAxisAlignment.START,
@@ -370,7 +372,9 @@ class HomePage(ft.UserControl):
         if self.option_textbox.value == "":
             return
         self.mail_filter.options.append(ft.dropdown.Option(self.option_textbox.value))
+        self.mail_filter.value=self.option_textbox.value
         self.option_textbox.value = ""
+        self.inbox_section.change_class(self.mail_filter.value)
         self.mail_filter.update()
         self.option_textbox.update()
 
