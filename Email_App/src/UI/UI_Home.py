@@ -92,6 +92,9 @@ class InboxSection(ft.UserControl):
         self.headers.remove(mail_container_component.header)
         self.inbox_section_column.controls.remove(control_to_delete)
         del mail_container_component
+
+        self.read_status_data.pop(file_name)
+        self.read_status_handler.write_read_status(self.read_status_data)
         self.update()
 
     def update_color(self, path: str):
@@ -102,6 +105,8 @@ class InboxSection(ft.UserControl):
         control_to_update.content.controls[2].icon_color = None
 
     def unread_mail(self, mail_container_component: InboxMailContainerComponent):
+        if (self.read_status_data.get(extract_file_name_from_path(mail_container_component.header[2])) == None):
+            return
         control_to_update = self.find_control_by_path(mail_container_component.header[2])
         if control_to_update is None:
             return
@@ -211,7 +216,8 @@ class InboxSection(ft.UserControl):
                         ),
                         ft.IconButton(
                             ft.icons.MARK_AS_UNREAD_OUTLINED,
-                            icon_color= icon_color
+                            icon_color= icon_color,
+                            on_click=mail_container_component.unread
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
