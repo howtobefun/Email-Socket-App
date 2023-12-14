@@ -61,7 +61,7 @@ class InboxSection(ft.UserControl):
         super().__init__()
         self.mail_class = mail_class
         self.headers = get_all_mail_header(self.mail_class)
-        self.inbox_section_column = ft.Column(height=560,scroll=True)
+        self.inbox_section_column = ft.Column(height=580,scroll=True)
         self.read_status_handler = ReadStatusHandling(User().pop3_client.email)
         self.read_status_data = self.read_status_handler.get_read_status()
         self.create_inbox_section()
@@ -288,7 +288,7 @@ class HomePage(ft.UserControl):
 
         self.option_textbox = ft.TextField(hint_text="Enter sender's name")
         self.add_option = ft.ElevatedButton("Add Filter", on_click=self.add_option_filter)
-        self.delete_option = ft.OutlinedButton("Delete Filter", on_click=self.delete_option_filter)
+        self.delete_option = ft.OutlinedButton("Del", on_click=self.delete_option_filter)
 
         self.user_information=UserInformation(page=self.page,user=self.user)
         self.mail_filter = ft.Dropdown(  
@@ -300,7 +300,7 @@ class HomePage(ft.UserControl):
                 ft.dropdown.Option("Spam"),
                 ft.dropdown.Option("Others"),
             ],
-            width=200,
+            width=150,
             value="Inbox",
             autofocus=True
         )
@@ -323,12 +323,15 @@ class HomePage(ft.UserControl):
             content=ft.Column(
                 controls=[
                     self.user_information,
-                    self.mail_filter,
-
-                    self.option_textbox,
+                    ft.Row([
+                        self.mail_filter,
+                        self.delete_option,
+                    ]),
+                    ft.Row([
+                        self.option_textbox,
+                        
+                    ]),
                     self.add_option,
-                    self.delete_option,
-                    
                     self.compose_mail,
                     self.retrieve_mails,
                 ]
@@ -336,7 +339,7 @@ class HomePage(ft.UserControl):
             alignment=ft.alignment.top_left,
             padding=ft.padding.only(top=20,left=9),
             border_radius=10,
-            height=560,
+            height=580,
             width=220,
             bgcolor=ft.colors.WHITE,
             border=ft.border.only(right=ft.border.BorderSide(1, ft.colors.BLACK))
@@ -375,7 +378,8 @@ class HomePage(ft.UserControl):
         option = self.find_option_filter(self.mail_filter.value)
         if option != None and (option.key not in self.option_list):
             self.mail_filter.options.remove(option)
-            self.mail_filter.value = ""
+            self.mail_filter.value = "Inbox"
+            self.inbox_section.change_class("Inbox")
             self.mail_filter.update()
 
 

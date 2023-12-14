@@ -91,7 +91,7 @@ class SendPage(ft.UserControl):
         self.subject = ft.TextField(label="Subject", height=40)
         self.content = ft.TextField(label="Content", min_lines=8, multiline=True, height=220)
         self.send_button = ft.ElevatedButton(text="Send", on_click=self.send)
-        self.sending_announce = ft.Text(value="")
+        self.sending_announce = ft.SnackBar(ft.Text("Sent Successfully"))
         self.file = PickFileSystem(self.page)
 
     def send(self, e):
@@ -104,8 +104,7 @@ class SendPage(ft.UserControl):
                 content=self.content.value,
                 attachments=", ".join(self.file.file_path)
             )
-            self.page.views[-1].controls.append(
-                ft.Row([ft.Text(value="Sent successfully")], alignment=ft.MainAxisAlignment.CENTER))
+            self.sending_announcement()
             self.page.update()
 
     def build(self):
@@ -119,3 +118,8 @@ class SendPage(ft.UserControl):
             ],
             alignment=ft.MainAxisAlignment.START
         )
+    
+    def sending_announcement(self):
+        self.page.snack_bar = self.sending_announce
+        self.sending_announce.open = True
+        self.page.update()
