@@ -10,7 +10,7 @@ class ReceivePage(ft.UserControl):
         self.page = page
 
         self.msg_dir = msg_dir
-        # self.folder_dir = os.path.dirname(self.msg_dir) currently not used
+        
         self.msg_file = self.msg_dir + self.get_file_name()
         self.msg = self.get_msg()
 
