@@ -298,7 +298,7 @@ class HomePage(ft.UserControl):
         super().__init__()
         self.user = User()
         
-        if not os.path.exists(self.user.pop3_client.USERS_MAILBOX)
+        if not os.path.exists(self.user.pop3_client.USERS_MAILBOX):
             os.mkdir(self.user.pop3_client.USERS_MAILBOX)
 
         if not os.path.exists(self.user.pop3_client.USER_MAILBOX_PATH):
