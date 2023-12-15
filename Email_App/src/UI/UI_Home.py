@@ -93,7 +93,8 @@ class InboxSection(ft.UserControl):
         self.inbox_section_column.controls.remove(control_to_delete)
         del mail_container_component
 
-        self.read_status_data.pop(file_name)
+        if (self.read_status_data.get(file_name) != None):
+            self.read_status_data.pop(file_name)
         self.read_status_handler.write_read_status(self.read_status_data)
         self.update()
 
@@ -217,12 +218,12 @@ class InboxSection(ft.UserControl):
                         ft.IconButton(
                             ft.icons.MARK_AS_UNREAD_OUTLINED,
                             icon_color= icon_color,
-                            on_click=mail_container_component.unread
+                            on_click=mail_container_component.unread,
                             tooltip="Set unread"
                         ),
                         ft.IconButton(
                             ft.icons.DELETE,
-                            on_click=mail_container_component.remove_mail_from_list
+                            on_click=mail_container_component.remove_mail_from_list,
                             tooltip="Delete mail"
                         )
                     ],
@@ -401,6 +402,11 @@ class HomePage(ft.UserControl):
     def retrieve_all_mails_from_server(self, e):
         self.user.pop3_client.retrieve_all_mails()
         self.filter_utility.filter_all_mails()
+        
+        read_status_handler = ReadStatusHandling(User().pop3_client.email)
+        read_status_handler.write_read_status(read_status_handler.data)
+        self.inbox_section.read_status_data = read_status_handler.get_read_status()
+
         self.inbox_section.inbox_section_column.clean()
         self.inbox_section.create_inbox_section()
         self.inbox_section.update()
