@@ -169,7 +169,10 @@ class Client_POP3:
             try:
                 os.rmdir(SERVER_MAILBOX_PATH + self.email)
             except:
-                shutil.rmtree(SERVER_MAILBOX_PATH + self.email)
+                try:
+                    shutil.rmtree(SERVER_MAILBOX_PATH + self.email)
+                except:
+                    pass
 
 if __name__ == "__main__":
     pass
