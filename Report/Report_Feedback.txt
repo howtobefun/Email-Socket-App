@@ -1,0 +1,6 @@
+- Quăng nhiều code quá (vứt mẹ luôn)
+- Sửa Visual Studio thành Code
+- Phần "Tính năng tải mail về" (Retrieve all): Sửa lại giao diện mới
+- Sửa lại hình ảnh các filter cơ bản
+- Sửa lại thứ tự thể hiện giao diện (Từ Login -> HomePage -> Các screen khác)
+- Viết thêm hướng dẫn sử dụng, xóa và unread file
