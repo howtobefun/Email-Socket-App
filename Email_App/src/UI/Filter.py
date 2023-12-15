@@ -55,8 +55,12 @@ class Filter:
                     string_mail_body = part.get_payload(decode=True).decode()
         return string_mail_body
 
-    def filter_all_mails(self):    
-        for msg_folder in os.listdir(self.INBOX_FOLDER):
+    def filter_all_mails(self): 
+        try:
+            msg_folders = os.listdir(self.INBOX_FOLDER)
+        except FileNotFoundError:
+            return
+        for msg_folder in msg_folders:
             for msg_file in os.listdir(self.INBOX_FOLDER + msg_folder + '/'):
                 complete_path = self.INBOX_FOLDER + msg_folder + '/' + msg_file
                 with open(complete_path, "r") as fp:

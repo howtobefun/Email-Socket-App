@@ -6,6 +6,7 @@ from Filter import *
 from UI_Send import *
 from UI_User import *
 from read_status_handling import *
+import Pop_Available
 
 def extract_file_name_from_path(path: str):
     return path.split('/')[-2] + '.msg'
@@ -400,6 +401,7 @@ class HomePage(ft.UserControl):
         self.page.go("/Compose")
 
     def retrieve_all_mails_from_server(self, e):
+        Pop_Available.pop_available=False
         self.user.pop3_client.retrieve_all_mails()
         self.filter_utility.filter_all_mails()
         
@@ -412,6 +414,7 @@ class HomePage(ft.UserControl):
         self.inbox_section.update()
 
         self.show_announcement("Retrieved successfully")
+        Pop_Available.pop_available=True
 
     def show_announcement(self, announcement: str):
         announce_dialog = ft.AlertDialog(
