@@ -1,0 +1,19 @@
+Python Flet library installing steps:
+1. Install Python
+2. Install Flet library using cmd:
+pip install flet
+
+Running-app-steps:
+1. Open a new terminal, navigate to project-folder
+2. Navigate to Test_Server folder:
+cd Test_Server
+3. Running Mailserver from jar file, there are 2 ways of running:
+- Use command: java -jar test-mail-server-1.0.jar -s 2225 -p 3335 -m ./
+- Run python file to open: python StartServer.py
+
+4. Open a new terminal, navigate to project-folder
+5. Navigate to Email_App folder:
+cd Email_App
+6. Run main.py file in src/UI folder:
+python src/UI/main.py
+7. Login and use the app as shown in report
