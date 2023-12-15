@@ -82,7 +82,15 @@ class InboxSection(ft.UserControl):
                 continue
             IDs = os.listdir(USER_MAILBOX_PATH + dir)
             if ID in IDs:
-                shutil.rmtree(USER_MAILBOX_PATH + dir + "/" + ID)
+                try:
+                    shutil.rmtree(USER_MAILBOX_PATH + dir + "/" + ID)
+                except:
+                    pass
+
+                try: 
+                    os.rmdir(USER_MAILBOX_PATH + dir)
+                except:
+                    pass
                 continue
         
         try:
