@@ -3,6 +3,7 @@ from UI_Home import *
 from UI_Send import *
 from UI_Receive import *
 from urllib.parse import urlparse
+import Pop_Available 
 
 def main_page(page: ft.Page):
     def setup_page():
@@ -67,16 +68,17 @@ def main_page(page: ft.Page):
                     ]
                 )
             )
-
         page.update()
 
     def view_pop(e):
-        page.views.pop()
-        top_view = page.views[-1]
-        page.go(top_view.route)
+        if Pop_Available.pop_available==True:
+            page.views.pop()
+            top_view = page.views[-1]
+            page.go(top_view.route)
 
     setup_page()
     page.views.clear()
+    Pop_Available.init_pop()
     page.on_route_change = route_change
     page.on_view_pop = view_pop
     page.go(page.route)

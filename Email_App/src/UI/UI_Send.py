@@ -1,5 +1,6 @@
 import flet as ft
 from UI_User import *
+import Pop_Available
 
 class FileContainerComponent:
     def __init__(self, file_path: str, file_name: str, delete_file: callable):
@@ -91,11 +92,24 @@ class SendPage(ft.UserControl):
         self.subject = ft.TextField(label="Subject", height=40)
         self.content = ft.TextField(label="Content", min_lines=8, multiline=True, height=220)
         self.send_button = ft.ElevatedButton(text="Send", on_click=self.send)
-        self.sending_announce = ft.SnackBar(ft.Text("Sent Successfully"))
+        self.sent_announce = ft.SnackBar(ft.Text("Sent Successfully"))
         self.file = PickFileSystem(self.page)
+        self.sending_progress_bar=ft.Container(
+            content=ft.Column([
+                ft.Text("Sending...", style="headlineSmall",color=ft.colors.BLUE_900),
+                ft.ProgressBar(width=400, color="amber", bgcolor="#eeeeee")
+            ]),
+            alignment=ft.alignment.center,
+            width=780,
+            height=80,
+            bgcolor=ft.colors.BLACK26
+        )
 
     def send(self, e):
         if self.to.value:
+            Pop_Available.pop_available=False
+            self.page.overlay.append(self.sending_progress_bar)
+            self.page.update()
             self.user.smtp_client.send_email(
                 mail_to_str=self.to.value,
                 cc_str=self.cc.value,
@@ -104,7 +118,9 @@ class SendPage(ft.UserControl):
                 content=self.content.value,
                 attachments=", ".join(self.file.file_path)
             )
-            self.sending_announcement()
+            self.page.overlay.remove(self.sending_progress_bar)
+            self.sent_announcement()
+            Pop_Available.pop_available=True
             self.page.update()
 
     def build(self):
@@ -119,7 +135,7 @@ class SendPage(ft.UserControl):
             alignment=ft.MainAxisAlignment.START
         )
     
-    def sending_announcement(self):
-        self.page.snack_bar = self.sending_announce
-        self.sending_announce.open = True
+    def sent_announcement(self):
+        self.page.snack_bar = self.sent_announce
+        self.sent_announce.open = True
         self.page.update()
