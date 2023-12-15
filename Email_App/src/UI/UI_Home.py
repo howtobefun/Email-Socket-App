@@ -93,7 +93,8 @@ class InboxSection(ft.UserControl):
         self.inbox_section_column.controls.remove(control_to_delete)
         del mail_container_component
 
-        self.read_status_data.pop(file_name)
+        if (self.read_status_data.get(file_name) != None):
+            self.read_status_data.pop(file_name)
         self.read_status_handler.write_read_status(self.read_status_data)
         self.update()
 
