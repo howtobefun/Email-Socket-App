@@ -15,6 +15,8 @@ class ReadStatusHandling:
         else:
             with open(self.read_status_file_path, 'r') as fp:
                 self.data = json.load(fp)
+            if (self.data == {}):
+                self.data = self.__generate_data()
 
     def get_read_status(self):
         return self.data
@@ -33,7 +35,8 @@ class ReadStatusHandling:
             for msg_folder in msg_folders:
                 msg_files = os.listdir(self.USER_MAILBOX_PATH + dir + "/" + msg_folder)
                 for msg_file in msg_files:
-                    data[msg_file] = False
+                    if data.get(msg_file) == None:
+                        data[msg_file] = False
 
         return data
     
