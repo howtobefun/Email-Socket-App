@@ -23,3 +23,6 @@ class User(metaclass=Singleton):
     def reset(self, smtp_client: Client_SMTP, pop3_client: Client_POP3):
         self.smtp_client = smtp_client
         self.pop3_client = pop3_client
+
+if __name__ == "__main__":
+    pass

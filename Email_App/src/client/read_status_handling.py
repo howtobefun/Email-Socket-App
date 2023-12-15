@@ -48,3 +48,6 @@ class ReadStatusHandling:
         self.data = self.__generate_data()
         with open(self.read_status_file_path, 'w') as fp:
             json.dump(self.data, fp)
+
+if __name__ == "__main__":
+    pass

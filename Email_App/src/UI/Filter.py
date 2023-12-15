@@ -83,3 +83,7 @@ class Filter:
             os.mkdir(mail_class_path + msg_folder)
         
         shutil.copy(source_file, destination_file)
+
+
+if __name__ == "__main__":
+    pass

@@ -50,3 +50,7 @@ class LoginPage(ft.UserControl):
             ],
             alignment=ft.MainAxisAlignment.START
         )
+    
+    
+if __name__ == "__main__":
+    pass

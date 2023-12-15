@@ -7,3 +7,7 @@ def init_config_data():
         config_data_object = load(fp, object_hook=lambda d: SimpleNamespace(**d))
 
     return config_data_object
+
+
+if __name__ == "__main__":
+    pass

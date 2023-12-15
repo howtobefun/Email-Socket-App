@@ -355,7 +355,6 @@ class HomePage(ft.UserControl):
             width=240,
             bgcolor=ft.colors.WHITE,
             border=ft.border.only(right=ft.border.BorderSide(1, ft.colors.BLACK))
-
         )
 
         return ft.Row(
@@ -366,7 +365,6 @@ class HomePage(ft.UserControl):
             ],
             alignment=ft.MainAxisAlignment.START,
         )
-
 
     def dropdown_changed(self, e):
         self.inbox_section.change_class(self.mail_filter.value)
@@ -395,7 +393,6 @@ class HomePage(ft.UserControl):
             self.mail_filter.value = "Inbox"
             self.inbox_section.change_class("Inbox")
             self.mail_filter.update()
-
 
     def compose_new_mail(self, e):
         self.page.go("/Compose")
@@ -426,9 +423,5 @@ class HomePage(ft.UserControl):
         self.page.update()
 
 
-def home_main(page: ft.Page):
-    page.add(HomePage(page))
-
-
 if __name__ == "__main__":
-    ft.app(target=home_main)
+    pass

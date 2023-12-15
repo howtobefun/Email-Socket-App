@@ -96,9 +96,5 @@ class ReceivePage(ft.UserControl):
         announce_dialog.open = True
         self.page.update()
 
-def receive_main(page: ft.Page):
-    page.add(ReceivePage(page))
-
-
 if __name__ == "__main__":
-    ft.app(target=receive_main)
+    pass

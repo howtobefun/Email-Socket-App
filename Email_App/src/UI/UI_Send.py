@@ -86,9 +86,9 @@ class SendPage(ft.UserControl):
         self.user = User()
         self.page = page
 
-        self.to = ft.TextField(label="To", height=40)
-        self.cc = ft.TextField(label="Cc", height=40)
-        self.bcc = ft.TextField(label="Bcc", height=40)
+        self.to = ft.TextField(label="To", height=40,hint_text="Person1, Person2, ...")
+        self.cc = ft.TextField(label="Cc", height=40,hint_text="Person1, Person2, ...")
+        self.bcc = ft.TextField(label="Bcc", height=40,hint_text="Person1, Person2, ...")
         self.subject = ft.TextField(label="Subject", height=40)
         self.content = ft.TextField(label="Content", min_lines=8, multiline=True, height=220)
         self.send_button = ft.ElevatedButton(text="Send", on_click=self.send)
@@ -139,3 +139,7 @@ class SendPage(ft.UserControl):
         self.page.snack_bar = self.sent_announce
         self.sent_announce.open = True
         self.page.update()
+
+
+if __name__ == "__main__":
+    pass
